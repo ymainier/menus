@@ -221,6 +221,7 @@ AND done = true
 
 ## UI/UX Notes
 
+- All pages should have max-width of `max-w-2xl` and be centered
 - Use shadcn/ui components: Button, Input, Checkbox, Card, Dialog, Badge (for tags)
 - Responsive design (mobile-friendly for checking off meals while cooking)
 - Toast notifications for actions (meal created, plan generated, etc.)
