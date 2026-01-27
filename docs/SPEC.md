@@ -6,7 +6,7 @@ Personal meal planning web app for family use. Manage a shared meal catalog, cre
 
 ## Tech Stack
 
-- **Framework**: Next.js 14+ (App Router)
+- **Framework**: Next.js 16+ (App Router)
 - **Language**: TypeScript
 - **Package Manager**: pnpm
 - **Database**: PostgreSQL with Drizzle ORM
