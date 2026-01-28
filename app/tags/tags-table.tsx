@@ -32,11 +32,11 @@ export function TagsTable({ tags }: TagsTableProps) {
         </TableHeader>
         <TableBody>
           {tags.map((tag) => (
-            <TableRow key={tag.id}>
+            <TableRow key={tag.id} className="relative has-focus-visible:outline has-focus-visible:outline-ring has-focus-visible:-outline-offset-2">
               <TableCell>
                 <Link
                   href={`/tags/${tag.id}`}
-                  className="font-medium hover:underline"
+                  className="font-medium hover:underline after:absolute after:inset-0 focus-visible:outline-none"
                 >
                   {tag.name}
                 </Link>

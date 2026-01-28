@@ -43,11 +43,11 @@ export function MealsTable({ meals }: MealsTableProps) {
         </TableHeader>
         <TableBody>
           {meals.map((meal) => (
-            <TableRow key={meal.id}>
+            <TableRow key={meal.id} className="relative has-focus-visible:outline has-focus-visible:outline-ring has-focus-visible:-outline-offset-2">
               <TableCell>
                 <Link
                   href={`/meals/${meal.id}`}
-                  className="font-medium hover:underline"
+                  className="font-medium hover:underline after:absolute after:inset-0 focus-visible:outline-none"
                 >
                   {meal.name}
                 </Link>

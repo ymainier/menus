@@ -42,11 +42,11 @@ export function PlansTable({ plans }: PlansTableProps) {
         </TableHeader>
         <TableBody>
           {plans.map((plan) => (
-            <TableRow key={plan.id}>
+            <TableRow key={plan.id} className="relative has-focus-visible:outline has-focus-visible:outline-ring has-focus-visible:-outline-offset-2">
               <TableCell>
                 <Link
                   href={`/plans/${plan.id}`}
-                  className="font-medium hover:underline"
+                  className="font-medium hover:underline after:absolute after:inset-0 focus-visible:outline-none"
                 >
                   {plan.weekNumber}
                 </Link>
