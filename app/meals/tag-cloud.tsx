@@ -19,18 +19,23 @@ export function TagCloud({ tags, selectedTagIds, onToggleTag }: TagCloudProps) {
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Tags">
       {tags.map((tag) => {
         const isSelected = selectedTagIds.includes(tag.id);
         return (
-          <Badge
+          <button
             key={tag.id}
-            variant={isSelected ? "default" : "outline"}
-            className="cursor-pointer select-none"
+            type="button"
             onClick={() => onToggleTag(tag.id)}
+            aria-pressed={isSelected}
           >
-            {tag.name}
-          </Badge>
+            <Badge
+              variant={isSelected ? "default" : "outline"}
+              className="cursor-pointer select-none"
+            >
+              {tag.name}
+            </Badge>
+          </button>
         );
       })}
     </div>
