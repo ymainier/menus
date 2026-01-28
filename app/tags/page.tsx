@@ -1,24 +1,24 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { getMeals } from "./actions";
-import { MealsTable } from "./meals-table";
+import { getTags } from "./actions";
+import { TagsTable } from "./tags-table";
 
-export default async function MealsPage() {
-  const meals = await getMeals();
+export default async function TagsPage() {
+  const tags = await getTags();
 
   return (
     <>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Meals</h1>
+        <h1 className="text-2xl font-bold">Tags</h1>
         <Button asChild>
-          <Link href="/meals/new">
+          <Link href="/tags/new">
             <Plus className="mr-2 h-4 w-4" />
-            New Meal
+            New Tag
           </Link>
         </Button>
       </div>
-      <MealsTable meals={meals} />
+      <TagsTable tags={tags} />
     </>
   );
 }

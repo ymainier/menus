@@ -1,14 +1,20 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { meals } from "@/lib/db/schema";
+import { meals, mealTags, tags } from "@/lib/db/schema";
 import { revalidatePath } from "next/cache";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, inArray } from "drizzle-orm";
+
+export type Tag = {
+  id: string;
+  name: string;
+};
 
 export type Meal = {
   id: string;
   name: string;
   createdAt: Date;
+  tags: Tag[];
 };
 
 type ActionResult<T = void> =
@@ -16,14 +22,63 @@ type ActionResult<T = void> =
   | { success: false; error: string };
 
 export async function getMeals(): Promise<Meal[]> {
-  const result = await db
-    .select()
-    .from(meals)
-    .orderBy(asc(meals.name));
-  return result;
+  const mealsResult = await db.select().from(meals).orderBy(asc(meals.name));
+
+  if (mealsResult.length === 0) {
+    return [];
+  }
+
+  const mealIds = mealsResult.map((m) => m.id);
+  const mealTagsResult = await db
+    .select({
+      mealId: mealTags.mealId,
+      tagId: tags.id,
+      tagName: tags.name,
+    })
+    .from(mealTags)
+    .innerJoin(tags, eq(mealTags.tagId, tags.id))
+    .where(inArray(mealTags.mealId, mealIds));
+
+  const tagsByMealId = new Map<string, Tag[]>();
+  for (const row of mealTagsResult) {
+    const existing = tagsByMealId.get(row.mealId) ?? [];
+    existing.push({ id: row.tagId, name: row.tagName });
+    tagsByMealId.set(row.mealId, existing);
+  }
+
+  return mealsResult.map((meal) => ({
+    ...meal,
+    tags: (tagsByMealId.get(meal.id) ?? []).sort((a, b) =>
+      a.name.localeCompare(b.name)
+    ),
+  }));
 }
 
-export async function createMeal(name: string): Promise<ActionResult<Meal>> {
+export async function getMeal(id: string): Promise<Meal | null> {
+  const [meal] = await db.select().from(meals).where(eq(meals.id, id));
+  if (!meal) return null;
+
+  const mealTagsResult = await db
+    .select({
+      tagId: tags.id,
+      tagName: tags.name,
+    })
+    .from(mealTags)
+    .innerJoin(tags, eq(mealTags.tagId, tags.id))
+    .where(eq(mealTags.mealId, id));
+
+  return {
+    ...meal,
+    tags: mealTagsResult
+      .map((row) => ({ id: row.tagId, name: row.tagName }))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+  };
+}
+
+export async function createMeal(
+  name: string,
+  tagIds: string[] = []
+): Promise<ActionResult<Meal>> {
   const trimmedName = name?.trim();
   if (!trimmedName) {
     return { success: false, error: "Name is required" };
@@ -35,8 +90,28 @@ export async function createMeal(name: string): Promise<ActionResult<Meal>> {
       .values({ name: trimmedName })
       .returning();
 
+    if (tagIds.length > 0) {
+      await db
+        .insert(mealTags)
+        .values(tagIds.map((tagId) => ({ mealId: meal.id, tagId })));
+    }
+
+    const mealTagsResult = await db
+      .select({ tagId: tags.id, tagName: tags.name })
+      .from(mealTags)
+      .innerJoin(tags, eq(mealTags.tagId, tags.id))
+      .where(eq(mealTags.mealId, meal.id));
+
     revalidatePath("/meals");
-    return { success: true, data: meal };
+    return {
+      success: true,
+      data: {
+        ...meal,
+        tags: mealTagsResult
+          .map((row) => ({ id: row.tagId, name: row.tagName }))
+          .sort((a, b) => a.name.localeCompare(b.name)),
+      },
+    };
   } catch (e) {
     if (e instanceof Error && e.message.includes("unique")) {
       return { success: false, error: "A meal with this name already exists" };
@@ -47,7 +122,8 @@ export async function createMeal(name: string): Promise<ActionResult<Meal>> {
 
 export async function updateMeal(
   id: string,
-  name: string
+  name: string,
+  tagIds: string[] = []
 ): Promise<ActionResult<Meal>> {
   const trimmedName = name?.trim();
   if (!trimmedName) {
@@ -69,8 +145,30 @@ export async function updateMeal(
       return { success: false, error: "Meal not found" };
     }
 
+    // Update tags: delete existing and insert new
+    await db.delete(mealTags).where(eq(mealTags.mealId, id));
+    if (tagIds.length > 0) {
+      await db
+        .insert(mealTags)
+        .values(tagIds.map((tagId) => ({ mealId: id, tagId })));
+    }
+
+    const mealTagsResult = await db
+      .select({ tagId: tags.id, tagName: tags.name })
+      .from(mealTags)
+      .innerJoin(tags, eq(mealTags.tagId, tags.id))
+      .where(eq(mealTags.mealId, id));
+
     revalidatePath("/meals");
-    return { success: true, data: meal };
+    return {
+      success: true,
+      data: {
+        ...meal,
+        tags: mealTagsResult
+          .map((row) => ({ id: row.tagId, name: row.tagName }))
+          .sort((a, b) => a.name.localeCompare(b.name)),
+      },
+    };
   } catch (e) {
     if (e instanceof Error && e.message.includes("unique")) {
       return { success: false, error: "A meal with this name already exists" };
