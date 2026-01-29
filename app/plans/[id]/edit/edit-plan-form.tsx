@@ -35,7 +35,7 @@ export function EditPlanForm({ plan, allMeals }: EditPlanFormProps) {
   const router = useRouter();
   const [weekNumber, setWeekNumber] = useState(plan.weekNumber);
   const [selectedMealIds, setSelectedMealIds] = useState<string[]>(
-    plan.meals.map((m) => m.mealId)
+    plan.meals.map((m) => m.mealId),
   );
   const [filter, setFilter] = useState("");
   const [error, setError] = useState("");
@@ -50,7 +50,7 @@ export function EditPlanForm({ plan, allMeals }: EditPlanFormProps) {
     return allMeals.filter((meal) => {
       const nameMatches = meal.name.toLowerCase().includes(searchTerm);
       const tagMatches = meal.tags.some((tag) =>
-        tag.name.toLowerCase().includes(searchTerm)
+        tag.name.toLowerCase().includes(searchTerm),
       );
       return nameMatches || tagMatches;
     });
@@ -60,7 +60,7 @@ export function EditPlanForm({ plan, allMeals }: EditPlanFormProps) {
     setSelectedMealIds((prev) =>
       prev.includes(mealId)
         ? prev.filter((id) => id !== mealId)
-        : [...prev, mealId]
+        : [...prev, mealId],
     );
   };
 
@@ -95,109 +95,99 @@ export function EditPlanForm({ plan, allMeals }: EditPlanFormProps) {
   };
 
   return (
-    <>
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/plans">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-bold">Edit Plan</h1>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="text-sm text-muted-foreground mb-2 block">
+          Week Number (ISO 8601 format)
+        </label>
+        <Input
+          value={weekNumber}
+          onChange={(e) => setWeekNumber(e.target.value)}
+          placeholder="e.g., 2025-W04"
+          autoFocus
+        />
+        {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="text-sm text-muted-foreground mb-2 block">
-            Week Number (ISO 8601 format)
-          </label>
-          <Input
-            value={weekNumber}
-            onChange={(e) => setWeekNumber(e.target.value)}
-            placeholder="e.g., 2025-W04"
-            autoFocus
-          />
-          {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+      <div>
+        <label className="text-sm text-muted-foreground mb-2 block">
+          Meals ({selectedMealIds.length} selected)
+        </label>
+        <Input
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder="Filter by name or tag..."
+          className="mb-2"
+        />
+        <div className="border rounded-md p-4 max-h-80 overflow-y-auto space-y-2">
+          {allMeals.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No meals available. Create some meals first.
+            </p>
+          ) : filteredMeals.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No meals match the filter.
+            </p>
+          ) : (
+            filteredMeals.map((meal) => (
+              <div key={meal.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={meal.id}
+                  checked={selectedMealIds.includes(meal.id)}
+                  onCheckedChange={() => handleToggleMeal(meal.id)}
+                />
+                <label
+                  htmlFor={meal.id}
+                  className="text-sm cursor-pointer select-none flex items-center gap-2 flex-wrap"
+                >
+                  <span>{meal.name}</span>
+                  {meal.tags.map((tag) => (
+                    <Badge key={tag.id} variant="secondary" className="text-xs">
+                      {tag.name}
+                    </Badge>
+                  ))}
+                </label>
+              </div>
+            ))
+          )}
         </div>
-        <div>
-          <label className="text-sm text-muted-foreground mb-2 block">
-            Meals ({selectedMealIds.length} selected)
-          </label>
-          <Input
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            placeholder="Filter by name or tag..."
-            className="mb-2"
-          />
-          <div className="border rounded-md p-4 max-h-80 overflow-y-auto space-y-2">
-            {allMeals.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No meals available. Create some meals first.
-              </p>
-            ) : filteredMeals.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No meals match the filter.
-              </p>
-            ) : (
-              filteredMeals.map((meal) => (
-                <div key={meal.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={meal.id}
-                    checked={selectedMealIds.includes(meal.id)}
-                    onCheckedChange={() => handleToggleMeal(meal.id)}
-                  />
-                  <label
-                    htmlFor={meal.id}
-                    className="text-sm cursor-pointer select-none flex items-center gap-2 flex-wrap"
-                  >
-                    <span>{meal.name}</span>
-                    {meal.tags.map((tag) => (
-                      <Badge key={tag.id} variant="secondary" className="text-xs">
-                        {tag.name}
-                      </Badge>
-                    ))}
-                  </label>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <Button type="submit" disabled={isSaving || isDeleting}>
-            {isSaving ? "Saving..." : "Save"}
-          </Button>
-          <Button type="button" variant="outline" asChild>
-            <Link href="/plans">Cancel</Link>
-          </Button>
-          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-            <AlertDialogTrigger asChild>
-              <Button
-                type="button"
-                variant="destructive"
-                disabled={isSaving || isDeleting}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete plan?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete the plan for week &quot;
-                  {plan.weekNumber}&quot;? This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={isDeleting}>
-                  Cancel
-                </AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-                  {isDeleting ? "Deleting..." : "Delete"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </form>
-    </>
+      </div>
+      <div className="flex gap-2">
+        <Button type="submit" disabled={isSaving || isDeleting}>
+          {isSaving ? "Saving..." : "Save"}
+        </Button>
+        <Button type="button" variant="outline" asChild>
+          <Link href="/plans">Cancel</Link>
+        </Button>
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogTrigger asChild>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isSaving || isDeleting}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete plan?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete the plan for week &quot;
+                {plan.weekNumber}&quot;? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeleting}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                {isDeleting ? "Deleting..." : "Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </form>
   );
 }

@@ -25,7 +25,7 @@ export function NewMealForm({ tags }: NewMealFormProps) {
     setSelectedTagIds((prev) =>
       prev.includes(tagId)
         ? prev.filter((id) => id !== tagId)
-        : [...prev, tagId]
+        : [...prev, tagId],
     );
   };
 
@@ -45,44 +45,32 @@ export function NewMealForm({ tags }: NewMealFormProps) {
   };
 
   return (
-    <>
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/meals">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-bold">New Meal</h1>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Meal name"
+          autoFocus
+        />
+        {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <Input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Meal name"
-            autoFocus
-          />
-          {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground mb-2 block">
-            Tags
-          </label>
-          <TagCloud
-            tags={tags}
-            selectedTagIds={selectedTagIds}
-            onToggleTag={handleToggleTag}
-          />
-        </div>
-        <div className="flex gap-2">
-          <Button type="submit" disabled={isCreating}>
-            {isCreating ? "Creating..." : "Create Meal"}
-          </Button>
-          <Button type="button" variant="outline" asChild>
-            <Link href="/meals">Cancel</Link>
-          </Button>
-        </div>
-      </form>
-    </>
+      <div>
+        <label className="text-sm text-muted-foreground mb-2 block">Tags</label>
+        <TagCloud
+          tags={tags}
+          selectedTagIds={selectedTagIds}
+          onToggleTag={handleToggleTag}
+        />
+      </div>
+      <div className="flex gap-2">
+        <Button type="submit" disabled={isCreating}>
+          {isCreating ? "Creating..." : "Create Meal"}
+        </Button>
+        <Button type="button" variant="outline" asChild>
+          <Link href="/meals">Cancel</Link>
+        </Button>
+      </div>
+    </form>
   );
 }

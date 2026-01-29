@@ -12,7 +12,6 @@ export default async function MealsPage() {
     <>
       <SetBreadcrumb items={[{ label: "Meals" }]} />
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Meals</h1>
         <Button asChild>
           <Link href="/meals/new">
             <Plus className="mr-2 h-4 w-4" />

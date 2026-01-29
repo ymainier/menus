@@ -37,34 +37,24 @@ export default function NewTagPage() {
   };
 
   return (
-    <>
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/tags">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-bold">New Tag</h1>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Tag name"
+          autoFocus
+        />
+        {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <Input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Tag name"
-            autoFocus
-          />
-          {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
-        </div>
-        <div className="flex gap-2">
-          <Button type="submit" disabled={isCreating}>
-            {isCreating ? "Creating..." : "Create Tag"}
-          </Button>
-          <Button type="button" variant="outline" asChild>
-            <Link href="/tags">Cancel</Link>
-          </Button>
-        </div>
-      </form>
-    </>
+      <div className="flex gap-2">
+        <Button type="submit" disabled={isCreating}>
+          {isCreating ? "Creating..." : "Create Tag"}
+        </Button>
+        <Button type="button" variant="outline" asChild>
+          <Link href="/tags">Cancel</Link>
+        </Button>
+      </div>
+    </form>
   );
 }

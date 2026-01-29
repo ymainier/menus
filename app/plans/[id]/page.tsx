@@ -40,18 +40,9 @@ export default async function PlanPage({ params }: PlanPageProps) {
           { label: extractWeek(plan.weekNumber) },
         ]}
       />
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/plans">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-bold">Plan</h1>
-      </div>
       <div className="space-y-4">
         <div>
-          <label className="text-sm text-muted-foreground">Week</label>
-          <p className="text-lg font-medium">{plan.weekNumber}</p>
+          <p className="text-lg font-bold">{plan.weekNumber}</p>
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Meals</label>
