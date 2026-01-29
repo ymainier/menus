@@ -291,10 +291,117 @@ export async function togglePlannedMealDone(
       .returning({ done: plannedMeals.done });
 
     revalidatePath(`/plans/${current.weekPlanId}`);
+    revalidatePath("/");
     return { success: true, data: { done: updated.done } };
   } catch {
     return { success: false, error: "Failed to toggle meal status" };
   }
+}
+
+function getCurrentWeekNumber(): string {
+  const now = new Date();
+
+  // Get the ISO week for today
+  const year = now.getFullYear();
+  const jan4 = new Date(year, 0, 4);
+  const dayOfWeek = jan4.getDay();
+  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+  const mondayOfWeek1 = new Date(jan4);
+  mondayOfWeek1.setDate(jan4.getDate() - daysToMonday);
+
+  // Calculate which ISO week today is in
+  const diffMs = now.getTime() - mondayOfWeek1.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const isoWeek = Math.floor(diffDays / 7) + 1;
+
+  // Get Monday of the current ISO week
+  const mondayOfCurrentWeek = new Date(mondayOfWeek1);
+  mondayOfCurrentWeek.setDate(mondayOfWeek1.getDate() + (isoWeek - 1) * 7);
+
+  // Our app weeks run Saturday to Friday
+  // Saturday = Monday + 5
+  const saturdayOfCurrentWeek = new Date(mondayOfCurrentWeek);
+  saturdayOfCurrentWeek.setDate(mondayOfCurrentWeek.getDate() + 5);
+
+  // If today is before the Saturday of this ISO week, we're in the previous app week
+  if (now < saturdayOfCurrentWeek) {
+    const prevWeek = isoWeek - 1;
+    if (prevWeek < 1) {
+      // Handle year boundary - use week 52 or 53 of previous year
+      const prevYear = year - 1;
+      const prevYearJan4 = new Date(prevYear, 0, 4);
+      const prevYearDayOfWeek = prevYearJan4.getDay();
+      const prevYearDaysToMonday =
+        prevYearDayOfWeek === 0 ? 6 : prevYearDayOfWeek - 1;
+      const prevYearMondayOfWeek1 = new Date(prevYearJan4);
+      prevYearMondayOfWeek1.setDate(prevYearJan4.getDate() - prevYearDaysToMonday);
+
+      // Find the last week of the previous year
+      const dec31 = new Date(prevYear, 11, 31);
+      const diffFromPrevYear = dec31.getTime() - prevYearMondayOfWeek1.getTime();
+      const lastWeek = Math.floor(diffFromPrevYear / (1000 * 60 * 60 * 24 * 7)) + 1;
+      return `${prevYear}-W${String(lastWeek).padStart(2, "0")}`;
+    }
+    return `${year}-W${String(prevWeek).padStart(2, "0")}`;
+  }
+
+  return `${year}-W${String(isoWeek).padStart(2, "0")}`;
+}
+
+export async function getCurrentWeekPlanWithMealsAndTags(): Promise<WeekPlanWithMealsAndTags | null> {
+  const currentWeekNumber = getCurrentWeekNumber();
+
+  const [plan] = await db
+    .select()
+    .from(weekPlans)
+    .where(eq(weekPlans.weekNumber, currentWeekNumber));
+
+  if (!plan) return null;
+
+  const planMeals = await db
+    .select({
+      id: plannedMeals.id,
+      mealId: meals.id,
+      mealName: meals.name,
+      done: plannedMeals.done,
+    })
+    .from(plannedMeals)
+    .innerJoin(meals, eq(plannedMeals.mealId, meals.id))
+    .where(eq(plannedMeals.weekPlanId, plan.id))
+    .orderBy(asc(meals.name));
+
+  if (planMeals.length === 0) {
+    return { ...plan, meals: [] };
+  }
+
+  // Fetch tags for all meals
+  const mealIds = planMeals.map((m) => m.mealId);
+  const mealTagsResult = await db
+    .select({
+      mealId: mealTags.mealId,
+      tagId: tags.id,
+      tagName: tags.name,
+    })
+    .from(mealTags)
+    .innerJoin(tags, eq(mealTags.tagId, tags.id))
+    .where(inArray(mealTags.mealId, mealIds));
+
+  const tagsByMealId = new Map<string, MealTag[]>();
+  for (const row of mealTagsResult) {
+    const existing = tagsByMealId.get(row.mealId) ?? [];
+    existing.push({ id: row.tagId, name: row.tagName });
+    tagsByMealId.set(row.mealId, existing);
+  }
+
+  return {
+    ...plan,
+    meals: planMeals.map((meal) => ({
+      ...meal,
+      tags: (tagsByMealId.get(meal.mealId) ?? []).sort((a, b) =>
+        a.name.localeCompare(b.name)
+      ),
+    })),
+  };
 }
 
 export async function getAllMealsWithTags(): Promise<MealWithTags[]> {
