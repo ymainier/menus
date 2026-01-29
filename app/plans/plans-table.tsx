@@ -1,3 +1,7 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Table,
@@ -7,21 +11,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import type { WeekPlan } from "./actions";
+import { deleteWeekPlan } from "./actions";
 
 interface PlansTableProps {
   plans: WeekPlan[];
 }
 
 export function PlansTable({ plans }: PlansTableProps) {
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
   if (plans.length === 0) {
     return (
       <p className="text-muted-foreground text-center py-8">
@@ -37,26 +47,81 @@ export function PlansTable({ plans }: PlansTableProps) {
           <TableRow>
             <TableHead>Week</TableHead>
             <TableHead>Meals</TableHead>
-            <TableHead>Created</TableHead>
+            <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {plans.map((plan) => (
-            <TableRow key={plan.id} className="relative has-focus-visible:outline has-focus-visible:outline-ring has-focus-visible:-outline-offset-2">
-              <TableCell>
-                <Link
-                  href={`/plans/${plan.id}`}
-                  className="font-medium hover:underline after:absolute after:inset-0 focus-visible:outline-none"
-                >
-                  {plan.weekNumber}
-                </Link>
-              </TableCell>
-              <TableCell>{plan.mealCount}</TableCell>
-              <TableCell>{formatDate(plan.createdAt)}</TableCell>
-            </TableRow>
+            <PlanRow key={plan.id} plan={plan} />
           ))}
         </TableBody>
       </Table>
     </div>
+  );
+}
+
+function PlanRow({ plan }: { plan: WeekPlan }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [isDeleting, startTransition] = useTransition();
+
+  const handleDelete = () => {
+    startTransition(async () => {
+      const result = await deleteWeekPlan(plan.id);
+
+      if (result.success) {
+        router.refresh();
+      } else {
+        setOpen(false);
+      }
+    });
+  };
+
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{plan.weekNumber}</TableCell>
+      <TableCell>{plan.mealCount}</TableCell>
+      <TableCell>
+        <div className="flex gap-1">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/plans/${plan.id}`}>
+              <Eye className="h-4 w-4" />
+              <span className="sr-only">View {plan.weekNumber}</span>
+            </Link>
+          </Button>
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/plans/${plan.id}/edit`}>
+              <Pencil className="h-4 w-4" />
+              <span className="sr-only">Edit {plan.weekNumber}</span>
+            </Link>
+          </Button>
+          <AlertDialog open={open} onOpenChange={setOpen}>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Delete {plan.weekNumber}</span>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete plan?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete the plan for &quot;{plan.weekNumber}&quot;? This
+                  action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </TableCell>
+    </TableRow>
   );
 }

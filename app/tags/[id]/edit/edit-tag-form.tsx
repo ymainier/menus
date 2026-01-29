@@ -40,7 +40,7 @@ export function EditTagForm({ tag }: EditTagFormProps) {
       const result = await updateTag(tag.id, name);
 
       if (result.success) {
-        router.push(`/tags/${tag.id}`);
+        router.push("/tags");
       } else {
         setError(result.error);
       }
@@ -66,7 +66,7 @@ export function EditTagForm({ tag }: EditTagFormProps) {
     <>
       <div className="flex items-center gap-4 mb-6">
         <Button variant="ghost" size="icon" asChild>
-          <Link href={`/tags/${tag.id}`}>
+          <Link href="/tags">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
@@ -87,7 +87,7 @@ export function EditTagForm({ tag }: EditTagFormProps) {
             {isSaving ? "Saving..." : "Save"}
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href={`/tags/${tag.id}`}>Cancel</Link>
+            <Link href="/tags">Cancel</Link>
           </Button>
           <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <AlertDialogTrigger asChild>

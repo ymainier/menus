@@ -54,7 +54,7 @@ export function EditMealForm({ meal, tags }: EditMealFormProps) {
       const result = await updateMeal(meal.id, name, selectedTagIds);
 
       if (result.success) {
-        router.push(`/meals/${meal.id}`);
+        router.push("/meals");
       } else {
         setError(result.error);
       }
@@ -80,7 +80,7 @@ export function EditMealForm({ meal, tags }: EditMealFormProps) {
     <>
       <div className="flex items-center gap-4 mb-6">
         <Button variant="ghost" size="icon" asChild>
-          <Link href={`/meals/${meal.id}`}>
+          <Link href="/meals">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
@@ -111,7 +111,7 @@ export function EditMealForm({ meal, tags }: EditMealFormProps) {
             {isSaving ? "Saving..." : "Save"}
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href={`/meals/${meal.id}`}>Cancel</Link>
+            <Link href="/meals">Cancel</Link>
           </Button>
           <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <AlertDialogTrigger asChild>
