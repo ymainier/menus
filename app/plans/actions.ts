@@ -156,6 +156,106 @@ export type MealWithTags = {
   tags: MealTag[];
 };
 
+export type PlannedMealWithTags = {
+  id: string;
+  mealId: string;
+  mealName: string;
+  done: boolean;
+  tags: MealTag[];
+};
+
+export type WeekPlanWithMealsAndTags = {
+  id: string;
+  weekNumber: string;
+  createdAt: Date;
+  meals: PlannedMealWithTags[];
+};
+
+export async function getWeekPlanWithMealsAndTags(
+  id: string
+): Promise<WeekPlanWithMealsAndTags | null> {
+  const [plan] = await db.select().from(weekPlans).where(eq(weekPlans.id, id));
+
+  if (!plan) return null;
+
+  const planMeals = await db
+    .select({
+      id: plannedMeals.id,
+      mealId: meals.id,
+      mealName: meals.name,
+      done: plannedMeals.done,
+    })
+    .from(plannedMeals)
+    .innerJoin(meals, eq(plannedMeals.mealId, meals.id))
+    .where(eq(plannedMeals.weekPlanId, id))
+    .orderBy(asc(meals.name));
+
+  if (planMeals.length === 0) {
+    return { ...plan, meals: [] };
+  }
+
+  // Fetch tags for all meals
+  const mealIds = planMeals.map((m) => m.mealId);
+  const mealTagsResult = await db
+    .select({
+      mealId: mealTags.mealId,
+      tagId: tags.id,
+      tagName: tags.name,
+    })
+    .from(mealTags)
+    .innerJoin(tags, eq(mealTags.tagId, tags.id))
+    .where(inArray(mealTags.mealId, mealIds));
+
+  const tagsByMealId = new Map<string, MealTag[]>();
+  for (const row of mealTagsResult) {
+    const existing = tagsByMealId.get(row.mealId) ?? [];
+    existing.push({ id: row.tagId, name: row.tagName });
+    tagsByMealId.set(row.mealId, existing);
+  }
+
+  return {
+    ...plan,
+    meals: planMeals.map((meal) => ({
+      ...meal,
+      tags: (tagsByMealId.get(meal.mealId) ?? []).sort((a, b) =>
+        a.name.localeCompare(b.name)
+      ),
+    })),
+  };
+}
+
+export async function togglePlannedMealDone(
+  plannedMealId: string
+): Promise<ActionResult<{ done: boolean }>> {
+  if (!plannedMealId) {
+    return { success: false, error: "Planned meal ID is required" };
+  }
+
+  try {
+    // Get current state
+    const [current] = await db
+      .select({ done: plannedMeals.done, weekPlanId: plannedMeals.weekPlanId })
+      .from(plannedMeals)
+      .where(eq(plannedMeals.id, plannedMealId));
+
+    if (!current) {
+      return { success: false, error: "Planned meal not found" };
+    }
+
+    // Toggle the done state
+    const [updated] = await db
+      .update(plannedMeals)
+      .set({ done: !current.done })
+      .where(eq(plannedMeals.id, plannedMealId))
+      .returning({ done: plannedMeals.done });
+
+    revalidatePath(`/plans/${current.weekPlanId}`);
+    return { success: true, data: { done: updated.done } };
+  } catch {
+    return { success: false, error: "Failed to toggle meal status" };
+  }
+}
+
 export async function getAllMealsWithTags(): Promise<MealWithTags[]> {
   const mealsResult = await db
     .select({ id: meals.id, name: meals.name })
