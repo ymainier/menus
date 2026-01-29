@@ -1,5 +1,13 @@
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { getWeekPlanWithMealsAndTags } from "../actions";
 import { DeletePlanButton } from "./delete-button";
 import { SetBreadcrumb } from "@/components/set-breadcrumb";
@@ -107,32 +115,47 @@ export default async function PlanPage({ params }: PlanPageProps) {
           {plan.meals.length === 0 ? (
             <p className="text-lg text-muted-foreground">No meals planned</p>
           ) : (
-            <ul className="space-y-2 mt-1">
-              {plan.meals.map((meal) => (
-                <li key={meal.id} className="flex items-center gap-3">
-                  <MealCheckbox
-                    plannedMealId={meal.id}
-                    done={meal.done}
-                    mealName={meal.mealName}
-                  />
-                  <label
-                    htmlFor={meal.id}
-                    className={`flex-1 cursor-pointer ${meal.done ? "line-through text-muted-foreground" : ""}`}
-                  >
-                    {meal.mealName}
-                  </label>
-                  {meal.tags.length > 0 && (
-                    <div className="flex gap-1">
-                      {meal.tags.map((tag) => (
-                        <Badge key={tag.id} variant="secondary">
-                          {tag.name}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <div className="border rounded-md mt-1">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12"></TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Tags</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {plan.meals.map((meal) => (
+                    <TableRow key={meal.id}>
+                      <TableCell>
+                        <MealCheckbox
+                          plannedMealId={meal.id}
+                          done={meal.done}
+                          mealName={meal.mealName}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <label
+                          htmlFor={meal.id}
+                          className={`cursor-pointer ${meal.done ? "line-through text-muted-foreground" : ""}`}
+                        >
+                          {meal.mealName}
+                        </label>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1 flex-wrap">
+                          {meal.tags.map((tag) => (
+                            <Badge key={tag.id} variant="secondary">
+                              {tag.name}
+                            </Badge>
+                          ))}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </div>
         <div>

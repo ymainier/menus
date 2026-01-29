@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { getWeekPlans } from "./actions";
+import { getWeekPlansWithMeals } from "./actions";
 import { PlansTable } from "./plans-table";
 import { SetBreadcrumb } from "@/components/set-breadcrumb";
 
 export default async function PlansPage() {
-  const plans = await getWeekPlans();
+  const plans = await getWeekPlansWithMeals();
 
   return (
     <>

@@ -24,11 +24,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Eye, Pencil, Trash2 } from "lucide-react";
-import type { WeekPlan } from "./actions";
+import type { WeekPlanWithMealNames } from "./actions";
 import { deleteWeekPlan } from "./actions";
 
 interface PlansTableProps {
-  plans: WeekPlan[];
+  plans: WeekPlanWithMealNames[];
 }
 
 export function PlansTable({ plans }: PlansTableProps) {
@@ -60,7 +60,7 @@ export function PlansTable({ plans }: PlansTableProps) {
   );
 }
 
-function PlanRow({ plan }: { plan: WeekPlan }) {
+function PlanRow({ plan }: { plan: WeekPlanWithMealNames }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isDeleting, startTransition] = useTransition();
@@ -80,7 +80,7 @@ function PlanRow({ plan }: { plan: WeekPlan }) {
   return (
     <TableRow>
       <TableCell className="font-medium">{plan.weekNumber}</TableCell>
-      <TableCell>{plan.mealCount}</TableCell>
+      <TableCell>{plan.mealNames.length}</TableCell>
       <TableCell>
         <div className="flex gap-1">
           <Button variant="ghost" size="icon" asChild>
@@ -106,8 +106,8 @@ function PlanRow({ plan }: { plan: WeekPlan }) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete plan?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete the plan for &quot;{plan.weekNumber}&quot;? This
-                  action cannot be undone.
+                  Are you sure you want to delete the plan for &quot;
+                  {plan.weekNumber}&quot;? This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

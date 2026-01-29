@@ -32,6 +32,47 @@ export async function getWeekPlans(): Promise<WeekPlan[]> {
   return result;
 }
 
+export type WeekPlanWithMealNames = {
+  id: string;
+  weekNumber: string;
+  createdAt: Date;
+  mealNames: string[];
+};
+
+export async function getWeekPlansWithMeals(): Promise<WeekPlanWithMealNames[]> {
+  const plansResult = await db
+    .select()
+    .from(weekPlans)
+    .orderBy(desc(weekPlans.weekNumber));
+
+  if (plansResult.length === 0) {
+    return [];
+  }
+
+  const planIds = plansResult.map((p) => p.id);
+  const mealsResult = await db
+    .select({
+      weekPlanId: plannedMeals.weekPlanId,
+      mealName: meals.name,
+    })
+    .from(plannedMeals)
+    .innerJoin(meals, eq(plannedMeals.mealId, meals.id))
+    .where(inArray(plannedMeals.weekPlanId, planIds))
+    .orderBy(asc(meals.name));
+
+  const mealsByPlanId = new Map<string, string[]>();
+  for (const row of mealsResult) {
+    const existing = mealsByPlanId.get(row.weekPlanId) ?? [];
+    existing.push(row.mealName);
+    mealsByPlanId.set(row.weekPlanId, existing);
+  }
+
+  return plansResult.map((plan) => ({
+    ...plan,
+    mealNames: mealsByPlanId.get(plan.id) ?? [],
+  }));
+}
+
 export async function getWeekPlan(id: string): Promise<WeekPlan | null> {
   const [result] = await db
     .select({

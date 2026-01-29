@@ -8,6 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -18,7 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import {
   updateWeekPlan,
   deleteWeekPlan,
@@ -118,36 +126,59 @@ export function EditPlanForm({ plan, allMeals }: EditPlanFormProps) {
           placeholder="Filter by name or tag..."
           className="mb-2"
         />
-        <div className="border rounded-md p-4 max-h-80 overflow-y-auto space-y-2">
+        <div className="border rounded-md max-h-80 overflow-y-auto">
           {allMeals.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground p-4">
               No meals available. Create some meals first.
             </p>
           ) : filteredMeals.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground p-4">
               No meals match the filter.
             </p>
           ) : (
-            filteredMeals.map((meal) => (
-              <div key={meal.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={meal.id}
-                  checked={selectedMealIds.includes(meal.id)}
-                  onCheckedChange={() => handleToggleMeal(meal.id)}
-                />
-                <label
-                  htmlFor={meal.id}
-                  className="text-sm cursor-pointer select-none flex items-center gap-2 flex-wrap"
-                >
-                  <span>{meal.name}</span>
-                  {meal.tags.map((tag) => (
-                    <Badge key={tag.id} variant="secondary" className="text-xs">
-                      {tag.name}
-                    </Badge>
-                  ))}
-                </label>
-              </div>
-            ))
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12"></TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Tags</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredMeals.map((meal) => (
+                  <TableRow key={meal.id}>
+                    <TableCell>
+                      <Checkbox
+                        id={meal.id}
+                        checked={selectedMealIds.includes(meal.id)}
+                        onCheckedChange={() => handleToggleMeal(meal.id)}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <label
+                        htmlFor={meal.id}
+                        className="cursor-pointer select-none"
+                      >
+                        {meal.name}
+                      </label>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1 flex-wrap">
+                        {meal.tags.map((tag) => (
+                          <Badge
+                            key={tag.id}
+                            variant="secondary"
+                            className="text-xs"
+                          >
+                            {tag.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </div>
       </div>
