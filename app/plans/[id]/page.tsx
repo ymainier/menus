@@ -4,9 +4,16 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { getWeekPlan } from "../actions";
 import { DeletePlanButton } from "./delete-button";
+import { SetBreadcrumb } from "@/components/set-breadcrumb";
 
 interface PlanPageProps {
   params: Promise<{ id: string }>;
+}
+
+function extractWeek(weekNumber: string): string {
+  // weekNumber format is "2025-W04", extract just "W04"
+  const match = weekNumber.match(/W\d+/);
+  return match ? match[0] : weekNumber;
 }
 
 export default async function PlanPage({ params }: PlanPageProps) {
@@ -27,6 +34,12 @@ export default async function PlanPage({ params }: PlanPageProps) {
 
   return (
     <>
+      <SetBreadcrumb
+        items={[
+          { label: "Plans", href: "/plans" },
+          { label: extractWeek(plan.weekNumber) },
+        ]}
+      />
       <div className="flex items-center gap-4 mb-6">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/plans">

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft } from "lucide-react";
 import { createWeekPlan } from "../actions";
+import { useBreadcrumb } from "@/components/breadcrumb-context";
 
 function getCurrentWeek(): string {
   const now = new Date();
@@ -24,6 +25,12 @@ export default function NewPlanPage() {
   const [weekNumber, setWeekNumber] = useState(() => getCurrentWeek());
   const [error, setError] = useState("");
   const [isCreating, startTransition] = useTransition();
+  const { setItems } = useBreadcrumb();
+
+  useEffect(() => {
+    setItems([{ label: "Plans", href: "/plans" }, { label: "New" }]);
+    return () => setItems([]);
+  }, [setItems]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
