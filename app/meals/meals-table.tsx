@@ -100,7 +100,7 @@ function MealRow({ meal }: { meal: Meal }) {
           </Button>
           <AlertDialog open={open} onOpenChange={setOpen}>
             <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="cursor-pointer">
                 <Trash2 className="h-4 w-4" />
                 <span className="sr-only">Delete {meal.name}</span>
               </Button>

@@ -1,5 +1,9 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   Table,
   TableBody,
@@ -57,26 +61,6 @@ function getWeekDateRange(weekNumber: string): { start: Date; end: Date } {
   return { start: saturday, end: friday };
 }
 
-function formatDateRange(start: Date, end: Date): string {
-  const formatDay = (d: Date) => {
-    const day = d.getDate();
-    const suffix =
-      day === 1 || day === 21 || day === 31
-        ? "st"
-        : day === 2 || day === 22
-          ? "nd"
-          : day === 3 || day === 23
-            ? "rd"
-            : "th";
-    return `${day}${suffix}`;
-  };
-
-  const startMonth = start.toLocaleDateString("en-US", { month: "short" });
-  const endMonth = end.toLocaleDateString("en-US", { month: "short" });
-
-  return `Sat. ${formatDay(start)} ${startMonth} to Fri. ${formatDay(end)} ${endMonth}`;
-}
-
 export default async function PlanPage({ params }: PlanPageProps) {
   const { id } = await params;
   const plan = await getWeekPlanWithMealsAndTags(id);
@@ -86,10 +70,11 @@ export default async function PlanPage({ params }: PlanPageProps) {
   }
 
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
+    return new Date(date).toLocaleDateString("en-GB", {
       year: "numeric",
       month: "short",
       day: "numeric",
+      weekday: "short",
     });
   };
 
@@ -105,10 +90,10 @@ export default async function PlanPage({ params }: PlanPageProps) {
       />
       <div className="space-y-4">
         <div>
-          <p className="text-lg font-bold">{plan.weekNumber}</p>
-          <p className="text-sm text-muted-foreground">
-            {formatDateRange(start, end)}
-          </p>
+          <span className="text-lg font-bold">{plan.weekNumber}</span>{" "}
+          <span className="text-sm text-muted-foreground">
+            from {formatDate(start)} to {formatDate(end)}
+          </span>
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Meals</label>
@@ -158,13 +143,15 @@ export default async function PlanPage({ params }: PlanPageProps) {
             </div>
           )}
         </div>
-        <div>
-          <label className="text-sm text-muted-foreground">Created</label>
-          <p className="text-lg">{formatDate(plan.createdAt)}</p>
-        </div>
-        <div className="flex gap-2">
+        <ButtonGroup>
+          <Button variant="outline" size="icon" asChild>
+            <Link href={`/plans/${id}/edit`}>
+              <Pencil className="h-4 w-4" />
+              <span className="sr-only">Edit {plan.weekNumber}</span>
+            </Link>
+          </Button>
           <DeletePlanButton id={id} weekNumber={plan.weekNumber} />
-        </div>
+        </ButtonGroup>
       </div>
     </>
   );

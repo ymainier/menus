@@ -16,7 +16,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { Ellipsis, List, Save, Trash2 } from "lucide-react";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { updateTag, deleteTag } from "../../actions";
 import type { Tag } from "../../actions";
 
@@ -74,41 +75,66 @@ export function EditTagForm({ tag }: EditTagFormProps) {
         {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
       </div>
       <div className="flex gap-2">
-        <Button type="submit" disabled={isSaving || isDeleting}>
-          {isSaving ? "Saving..." : "Save"}
-        </Button>
-        <Button type="button" variant="outline" asChild>
-          <Link href="/tags">Cancel</Link>
-        </Button>
-        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <AlertDialogTrigger asChild>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={isSaving || isDeleting}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete tag?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete &quot;{tag.name}&quot;? This
-                will remove it from all associated meals.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={isDeleting}>
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-                {isDeleting ? "Deleting..." : "Delete"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <ButtonGroup>
+          <Button
+            type="submit"
+            variant="outline"
+            disabled={isSaving || isDeleting}
+            className="cursor-pointer"
+          >
+            {isSaving ? (
+              <>
+                <Ellipsis className="h-4 w-4" />
+                <span className="sr-only">Saving</span>
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                <span className="sr-only">Save</span>
+              </>
+            )}
+          </Button>
+          <Button type="button" variant="outline" size="icon" asChild>
+            <Link href="/tags">
+              <List className="h-4 w-4" />
+              <span className="sr-only">List tags</span>
+            </Link>
+          </Button>
+          <AlertDialog
+            open={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
+          >
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="cursor-pointer"
+                disabled={isSaving || isDeleting}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Delete {tag.name}</span>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete tag?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete &quot;{tag.name}&quot;? This
+                  will remove it from all associated meals.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </ButtonGroup>
       </div>
     </form>
   );

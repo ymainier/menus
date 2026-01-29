@@ -26,7 +26,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
+import { Ellipsis, List, Save, Trash2 } from "lucide-react";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   updateWeekPlan,
   deleteWeekPlan,
@@ -183,41 +184,66 @@ export function EditPlanForm({ plan, allMeals }: EditPlanFormProps) {
         </div>
       </div>
       <div className="flex gap-2">
-        <Button type="submit" disabled={isSaving || isDeleting}>
-          {isSaving ? "Saving..." : "Save"}
-        </Button>
-        <Button type="button" variant="outline" asChild>
-          <Link href="/plans">Cancel</Link>
-        </Button>
-        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <AlertDialogTrigger asChild>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={isSaving || isDeleting}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete plan?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete the plan for week &quot;
-                {plan.weekNumber}&quot;? This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={isDeleting}>
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-                {isDeleting ? "Deleting..." : "Delete"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <ButtonGroup>
+          <Button
+            type="submit"
+            variant="outline"
+            disabled={isSaving || isDeleting}
+            className="cursor-pointer"
+          >
+            {isSaving ? (
+              <>
+                <Ellipsis className="h-4 w-4" />
+                <span className="sr-only">Saving</span>
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                <span className="sr-only">Save</span>
+              </>
+            )}
+          </Button>
+          <Button type="button" variant="outline" size="icon" asChild>
+            <Link href="/plans">
+              <List className="h-4 w-4" />
+              <span className="sr-only">View plans</span>
+            </Link>
+          </Button>
+          <AlertDialog
+            open={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
+          >
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="cursor-pointer"
+                disabled={isSaving || isDeleting}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Delete {plan.weekNumber}</span>
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete plan?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete the plan for week &quot;
+                  {plan.weekNumber}&quot;? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </ButtonGroup>
       </div>
     </form>
   );
