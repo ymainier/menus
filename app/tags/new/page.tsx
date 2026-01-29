@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -12,21 +12,21 @@ export default function NewTagPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [error, setError] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
+  const [isCreating, startTransition] = useTransition();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    setIsCreating(true);
-    const result = await createTag(name);
-    setIsCreating(false);
+    startTransition(async () => {
+      const result = await createTag(name);
 
-    if (result.success) {
-      router.push("/tags");
-    } else {
-      setError(result.error);
-    }
+      if (result.success) {
+        router.push("/tags");
+      } else {
+        setError(result.error);
+      }
+    });
   };
 
   return (

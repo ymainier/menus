@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -21,23 +21,23 @@ function getCurrentWeek(): string {
 
 export default function NewPlanPage() {
   const router = useRouter();
-  const [weekNumber, setWeekNumber] = useState(getCurrentWeek());
+  const [weekNumber, setWeekNumber] = useState(() => getCurrentWeek());
   const [error, setError] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
+  const [isCreating, startTransition] = useTransition();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    setIsCreating(true);
-    const result = await createWeekPlan(weekNumber);
-    setIsCreating(false);
+    startTransition(async () => {
+      const result = await createWeekPlan(weekNumber);
 
-    if (result.success) {
-      router.push("/plans");
-    } else {
-      setError(result.error);
-    }
+      if (result.success) {
+        router.push("/plans");
+      } else {
+        setError(result.error);
+      }
+    });
   };
 
   return (

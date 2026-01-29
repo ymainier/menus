@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ export function NewMealForm({ tags }: NewMealFormProps) {
   const [name, setName] = useState("");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [error, setError] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
+  const [isCreating, startTransition] = useTransition();
 
   const handleToggleTag = (tagId: string) => {
     setSelectedTagIds((prev) =>
@@ -29,19 +29,19 @@ export function NewMealForm({ tags }: NewMealFormProps) {
     );
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    setIsCreating(true);
-    const result = await createMeal(name, selectedTagIds);
-    setIsCreating(false);
+    startTransition(async () => {
+      const result = await createMeal(name, selectedTagIds);
 
-    if (result.success) {
-      router.push("/meals");
-    } else {
-      setError(result.error);
-    }
+      if (result.success) {
+        router.push("/meals");
+      } else {
+        setError(result.error);
+      }
+    });
   };
 
   return (

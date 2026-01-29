@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,21 +25,22 @@ interface DeleteTagButtonProps {
 export function DeleteTagButton({ id, name }: DeleteTagButtonProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
+  const [isDeleting, startTransition] = useTransition();
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     setError("");
-    setIsDeleting(true);
-    const result = await deleteTag(id);
-    setIsDeleting(false);
 
-    if (result.success) {
-      router.push("/tags");
-    } else {
-      setError(result.error);
-      setOpen(false);
-    }
+    startTransition(async () => {
+      const result = await deleteTag(id);
+
+      if (result.success) {
+        router.push("/tags");
+      } else {
+        setError(result.error);
+        setOpen(false);
+      }
+    });
   };
 
   return (

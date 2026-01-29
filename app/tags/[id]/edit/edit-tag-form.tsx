@@ -17,44 +17,30 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ArrowLeft, Trash2 } from "lucide-react";
-import { updateMeal, deleteMeal } from "../../actions";
-import type { Meal } from "../../actions";
-import { TagCloud } from "../../tag-cloud";
-import type { Tag } from "@/app/tags/actions";
+import { updateTag, deleteTag } from "../../actions";
+import type { Tag } from "../../actions";
 
-interface EditMealFormProps {
-  meal: Meal;
-  tags: Tag[];
+interface EditTagFormProps {
+  tag: Tag;
 }
 
-export function EditMealForm({ meal, tags }: EditMealFormProps) {
+export function EditTagForm({ tag }: EditTagFormProps) {
   const router = useRouter();
-  const [name, setName] = useState(meal.name);
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(
-    meal.tags.map((t) => t.id)
-  );
+  const [name, setName] = useState(tag.name);
   const [error, setError] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isSaving, startSaveTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
-
-  const handleToggleTag = (tagId: string) => {
-    setSelectedTagIds((prev) =>
-      prev.includes(tagId)
-        ? prev.filter((id) => id !== tagId)
-        : [...prev, tagId]
-    );
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     startSaveTransition(async () => {
-      const result = await updateMeal(meal.id, name, selectedTagIds);
+      const result = await updateTag(tag.id, name);
 
       if (result.success) {
-        router.push(`/meals/${meal.id}`);
+        router.push(`/tags/${tag.id}`);
       } else {
         setError(result.error);
       }
@@ -65,10 +51,10 @@ export function EditMealForm({ meal, tags }: EditMealFormProps) {
     setError("");
 
     startDeleteTransition(async () => {
-      const result = await deleteMeal(meal.id);
+      const result = await deleteTag(tag.id);
 
       if (result.success) {
-        router.push("/meals");
+        router.push("/tags");
       } else {
         setError(result.error);
         setDeleteDialogOpen(false);
@@ -80,38 +66,28 @@ export function EditMealForm({ meal, tags }: EditMealFormProps) {
     <>
       <div className="flex items-center gap-4 mb-6">
         <Button variant="ghost" size="icon" asChild>
-          <Link href={`/meals/${meal.id}`}>
+          <Link href={`/tags/${tag.id}`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <h1 className="text-2xl font-bold">Edit Meal</h1>
+        <h1 className="text-2xl font-bold">Edit Tag</h1>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Meal name"
+            placeholder="Tag name"
             autoFocus
           />
           {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
-        </div>
-        <div>
-          <label className="text-sm text-muted-foreground mb-2 block">
-            Tags
-          </label>
-          <TagCloud
-            tags={tags}
-            selectedTagIds={selectedTagIds}
-            onToggleTag={handleToggleTag}
-          />
         </div>
         <div className="flex gap-2">
           <Button type="submit" disabled={isSaving || isDeleting}>
             {isSaving ? "Saving..." : "Save"}
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href={`/meals/${meal.id}`}>Cancel</Link>
+            <Link href={`/tags/${tag.id}`}>Cancel</Link>
           </Button>
           <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <AlertDialogTrigger asChild>
@@ -126,10 +102,10 @@ export function EditMealForm({ meal, tags }: EditMealFormProps) {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete meal?</AlertDialogTitle>
+                <AlertDialogTitle>Delete tag?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete &quot;{meal.name}&quot;?
-                  This action cannot be undone.
+                  Are you sure you want to delete &quot;{tag.name}&quot;?
+                  This will remove it from all associated meals.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
