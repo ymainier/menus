@@ -7,10 +7,11 @@ interface TagCloudProps {
   tags: Tag[];
   selectedTagIds: string[];
   onToggleTag: (tagId: string) => void;
+  action?: React.ReactNode;
 }
 
-export function TagCloud({ tags, selectedTagIds, onToggleTag }: TagCloudProps) {
-  if (tags.length === 0) {
+export function TagCloud({ tags, selectedTagIds, onToggleTag, action }: TagCloudProps) {
+  if (tags.length === 0 && !action) {
     return (
       <p className="text-muted-foreground text-sm">
         No tags available. Create tags first.
@@ -38,6 +39,7 @@ export function TagCloud({ tags, selectedTagIds, onToggleTag }: TagCloudProps) {
           </button>
         );
       })}
+      {action}
     </div>
   );
 }

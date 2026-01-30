@@ -5,21 +5,28 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft } from "lucide-react";
 import { createMeal } from "../actions";
 import { TagCloud } from "../tag-cloud";
+import { CreateTagDialog } from "../create-tag-dialog";
 import type { Tag } from "@/app/tags/actions";
 
 interface NewMealFormProps {
-  tags: Tag[];
+  initialTags: Tag[];
 }
 
-export function NewMealForm({ tags }: NewMealFormProps) {
+export function NewMealForm({ initialTags }: NewMealFormProps) {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [tags, setTags] = useState<Tag[]>(initialTags);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [isCreating, startTransition] = useTransition();
+
+  const handleTagCreated = (tag: Tag) => {
+    setTags((prev) => [...prev, tag].sort((a, b) => a.name.localeCompare(b.name)));
+    setSelectedTagIds((prev) => [...prev, tag.id]);
+    router.refresh();
+  };
 
   const handleToggleTag = (tagId: string) => {
     setSelectedTagIds((prev) =>
@@ -61,6 +68,7 @@ export function NewMealForm({ tags }: NewMealFormProps) {
           tags={tags}
           selectedTagIds={selectedTagIds}
           onToggleTag={handleToggleTag}
+          action={<CreateTagDialog onTagCreated={handleTagCreated} />}
         />
       </div>
       <div className="flex gap-2">

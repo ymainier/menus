@@ -34,18 +34,24 @@ import {
   type WeekPlanWithMeals,
   type MealWithTags,
 } from "../../actions";
+import { CreateMealDialog } from "../../create-meal-dialog";
+import type { Meal } from "@/app/meals/actions";
+import type { Tag } from "@/app/tags/actions";
 
 interface EditPlanFormProps {
   plan: WeekPlanWithMeals;
   allMeals: MealWithTags[];
+  initialTags: Tag[];
 }
 
-export function EditPlanForm({ plan, allMeals }: EditPlanFormProps) {
+export function EditPlanForm({ plan, allMeals, initialTags }: EditPlanFormProps) {
   const router = useRouter();
   const [weekNumber, setWeekNumber] = useState(plan.weekNumber);
   const [selectedMealIds, setSelectedMealIds] = useState<string[]>(
     plan.meals.map((m) => m.mealId),
   );
+  const [meals, setMeals] = useState<MealWithTags[]>(allMeals);
+  const [tags, setTags] = useState<Tag[]>(initialTags);
   const [filter, setFilter] = useState("");
   const [error, setError] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -54,16 +60,35 @@ export function EditPlanForm({ plan, allMeals }: EditPlanFormProps) {
 
   const filteredMeals = useMemo(() => {
     const searchTerm = filter.toLowerCase().trim();
-    if (!searchTerm) return allMeals;
+    if (!searchTerm) return meals;
 
-    return allMeals.filter((meal) => {
+    return meals.filter((meal) => {
       const nameMatches = meal.name.toLowerCase().includes(searchTerm);
       const tagMatches = meal.tags.some((tag) =>
         tag.name.toLowerCase().includes(searchTerm),
       );
       return nameMatches || tagMatches;
     });
-  }, [allMeals, filter]);
+  }, [meals, filter]);
+
+  const handleMealCreated = (meal: Meal) => {
+    const mealWithTags: MealWithTags = {
+      id: meal.id,
+      name: meal.name,
+      tags: meal.tags,
+    };
+    setMeals((prev) =>
+      [...prev, mealWithTags].sort((a, b) => a.name.localeCompare(b.name))
+    );
+    setSelectedMealIds((prev) => [...prev, meal.id]);
+    router.refresh();
+  };
+
+  const handleTagCreated = (tag: Tag) => {
+    setTags((prev) =>
+      [...prev, tag].sort((a, b) => a.name.localeCompare(b.name))
+    );
+  };
 
   const handleToggleMeal = (mealId: string) => {
     setSelectedMealIds((prev) =>
@@ -121,14 +146,21 @@ export function EditPlanForm({ plan, allMeals }: EditPlanFormProps) {
         <label className="text-sm text-muted-foreground mb-2 block">
           Meals ({selectedMealIds.length} selected)
         </label>
-        <Input
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder="Filter by name or tag..."
-          className="mb-2"
-        />
+        <div className="flex gap-2 mb-2">
+          <Input
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Filter by name or tag..."
+            className="flex-1"
+          />
+          <CreateMealDialog
+            tags={tags}
+            onMealCreated={handleMealCreated}
+            onTagCreated={handleTagCreated}
+          />
+        </div>
         <div className="border rounded-md max-h-80 overflow-y-auto">
-          {allMeals.length === 0 ? (
+          {meals.length === 0 ? (
             <p className="text-sm text-muted-foreground p-4">
               No meals available. Create some meals first.
             </p>

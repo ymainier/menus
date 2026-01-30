@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getWeekPlanWithMeals, getAllMealsWithTags } from "../../actions";
+import { getTags } from "@/app/tags/actions";
 import { EditPlanForm } from "./edit-plan-form";
 import { SetBreadcrumb } from "@/components/set-breadcrumb";
 
@@ -9,9 +10,10 @@ interface EditPlanPageProps {
 
 export default async function EditPlanPage({ params }: EditPlanPageProps) {
   const { id } = await params;
-  const [plan, allMeals] = await Promise.all([
+  const [plan, allMeals, tags] = await Promise.all([
     getWeekPlanWithMeals(id),
     getAllMealsWithTags(),
+    getTags(),
   ]);
 
   if (!plan) {
@@ -23,7 +25,7 @@ export default async function EditPlanPage({ params }: EditPlanPageProps) {
       <SetBreadcrumb
         items={[{ label: "Plans", href: "/plans" }, { label: "Edit" }]}
       />
-      <EditPlanForm plan={plan} allMeals={allMeals} />
+      <EditPlanForm plan={plan} allMeals={allMeals} initialTags={tags} />
     </>
   );
 }
