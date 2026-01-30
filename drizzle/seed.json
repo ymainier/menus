@@ -1,0 +1,302 @@
+[
+  {
+    "name": "Pates carbonara",
+    "tags": ["ham", "pasta"]
+  },
+  {
+    "name": "Pates bologneses",
+    "tags": ["beef", "pasta"]
+  },
+  {
+    "name": "Pates chorizo",
+    "tags": ["chorizo", "pasta"]
+  },
+  {
+    "name": "Pates aux brocolis",
+    "tags": ["vegetable", "pasta"]
+  },
+  {
+    "name": "Pates petit pois jambons",
+    "tags": ["peas", "ham", "pasta"]
+  },
+  {
+    "name": "Pates au saumon",
+    "tags": ["fish", "salmon", "pasta"]
+  },
+  {
+    "name": "Ravioli",
+    "tags": ["pasta"]
+  },
+  {
+    "name": "Tortellini",
+    "tags": ["pasta"]
+  },
+  {
+    "name": "Lasagnes",
+    "tags": ["pasta", "long"]
+  },
+  {
+    "name": "Gratin de pates",
+    "tags": ["cheese", "pasta"]
+  },
+  {
+    "name": "Mac and cheese",
+    "tags": ["cheese", "pasta"]
+  },
+  {
+    "name": "Rigatoni alla burrata",
+    "tags": ["cheese", "pasta"]
+  },
+  {
+    "name": "Risotto champignon",
+    "tags": ["mushroom", "rice", "vegetable"]
+  },
+  {
+    "name": "Risotto asperge",
+    "tags": ["asparagus", "rice", "vegetable"]
+  },
+  {
+    "name": "Riz cantonais",
+    "tags": ["ham", "rice", "egg"]
+  },
+  {
+    "name": "Riz jambon tomate champignon",
+    "tags": ["mushroom", "tomato", "rice"]
+  },
+  {
+    "name": "Riz sauce aigre douce",
+    "tags": ["rice", "sweet and sour"]
+  },
+  {
+    "name": "Grattin camarguais",
+    "tags": []
+  },
+  {
+    "name": "Riz curry poulet",
+    "tags": ["chicken", "rice", "curry"]
+  },
+  {
+    "name": "Riz curry crevette",
+    "tags": ["shrimp", "rice", "curry"]
+  },
+  {
+    "name": "Riz curry légume",
+    "tags": ["vegetable", "rice", "curry"]
+  },
+  {
+    "name": "Quiche lorraine",
+    "tags": ["ham", "cheese", "pie"]
+  },
+  {
+    "name": "Quiche légume",
+    "tags": ["pie", "vegetable"]
+  },
+  {
+    "name": "Quiche saumon asperge",
+    "tags": ["asparagus", "pie", "fish", "salmon"]
+  },
+  {
+    "name": "Quiche St-Nectaire tomate",
+    "tags": ["tomato", "pie", "cheese"]
+  },
+  {
+    "name": "Quiche épinard ricotta",
+    "tags": ["ricotta", "spinach", "cheese", "pie"]
+  },
+  {
+    "name": "Soupe légume Maison",
+    "tags": ["soup", "vegetable"]
+  },
+  {
+    "name": "Soupe légume préparée",
+    "tags": ["soup", "vegetable"]
+  },
+  {
+    "name": "Minestrone",
+    "tags": ["pasta", "vegetable"]
+  },
+  {
+    "name": "Bouillon de pate",
+    "tags": ["broth"]
+  },
+  {
+    "name": "Noodles",
+    "tags": ["noodles"]
+  },
+  {
+    "name": "Soupe petit pois jambon",
+    "tags": ["peas", "ham", "soup"]
+  },
+  {
+    "name": "Soupe carotte coriandre",
+    "tags": ["soup", "carrot"]
+  },
+  {
+    "name": "Soupe tomate",
+    "tags": ["soup", "tomato"]
+  },
+  {
+    "name": "Soupe indienne aux lentilles",
+    "tags": ["soup", "indian", "lentils"]
+  },
+  {
+    "name": "Saucisse purée",
+    "tags": ["potatoe", "sausage"]
+  },
+  {
+    "name": "Sausage roll",
+    "tags": ["pastry", "sausage"]
+  },
+  {
+    "name": "Pie and mash",
+    "tags": ["pie", "potatoe"]
+  },
+  {
+    "name": "Brusquette",
+    "tags": ["bread", "tomato", "ham"]
+  },
+  {
+    "name": "Toastie",
+    "tags": ["cheese", "bread", "sandwich"]
+  },
+  {
+    "name": "Panini",
+    "tags": ["bread", "ham", "sandwich"]
+  },
+  {
+    "name": "Croque Monsieur",
+    "tags": ["ham", "cheese", "bread", "sandwich"]
+  },
+  {
+    "name": "Hachis parmentier",
+    "tags": ["potato", "beef", "long"]
+  },
+  {
+    "name": "Gratting dauphinois",
+    "tags": ["potato", "long"]
+  },
+  {
+    "name": "Légumes farcis",
+    "tags": ["vegetable", "beef", "long"]
+  },
+  {
+    "name": "Ratatouille",
+    "tags": ["tomato", "vegetable"]
+  },
+  {
+    "name": "Gratin de choux-fleur",
+    "tags": ["cauliflower", "cheese"]
+  },
+  {
+    "name": "Raclette",
+    "tags": ["potato", "cheese"]
+  },
+  {
+    "name": "Boite chaude",
+    "tags": ["potato", "cheese"]
+  },
+  {
+    "name": "Saumon papillote",
+    "tags": ["fish", "salmon", "rice"]
+  },
+  {
+    "name": "Fish and chips",
+    "tags": ["fish", "potato"]
+  },
+  {
+    "name": "Meat balls",
+    "tags": ["beef"]
+  },
+  {
+    "name": "Poulet grillé",
+    "tags": ["chicken", "long"]
+  },
+  {
+    "name": "Rosbeef",
+    "tags": ["beef", "long"]
+  },
+  {
+    "name": "Hamburger",
+    "tags": ["beef", "bread"]
+  },
+  {
+    "name": "Steak haché",
+    "tags": ["beef"]
+  },
+  {
+    "name": "Nuggets",
+    "tags": ["chicken"]
+  },
+  {
+    "name": "Cordon bleu",
+    "tags": ["ham", "chicken", "cheese"]
+  },
+  {
+    "name": "Sauté de volaille",
+    "tags": ["chicken"]
+  },
+  {
+    "name": "Blanquette",
+    "tags": ["vegetable", "veal", "long"]
+  },
+  {
+    "name": "Couscous",
+    "tags": ["semolina", "vegetable", "long"]
+  },
+  {
+    "name": "Crêpes",
+    "tags": ["long"]
+  },
+  {
+    "name": "English breakfast",
+    "tags": ["egg", "bacon", "sausage"]
+  },
+  {
+    "name": "Plancha",
+    "tags": ["beef"]
+  },
+  {
+    "name": "Barbecue brochette",
+    "tags": ["barbecue", "beef", "chicken"]
+  },
+  {
+    "name": "Barbecue saucisse",
+    "tags": ["barbecue", "sausage"]
+  },
+  {
+    "name": "Salade de pate",
+    "tags": ["pasta", "vegetable"]
+  },
+  {
+    "name": "Salade de patate",
+    "tags": ["vegetable", "vegetable"]
+  },
+  {
+    "name": "Salade de riz",
+    "tags": ["rice", "vegetable", "tuna", "fish"]
+  },
+  {
+    "name": "Salade, tomate, concombre",
+    "tags": ["tomato", "salad", "cucumber"]
+  },
+  {
+    "name": "Pates de courgette bolognese",
+    "tags": ["courgette", "beef"]
+  },
+  {
+    "name": "Omelette tomates au four",
+    "tags": ["vegetable", "egg"]
+  },
+  {
+    "name": "Oeuf a la coque",
+    "tags": ["egg"]
+  },
+  {
+    "name": "Oeuf poché épinard jambon",
+    "tags": ["spinach", "egg", "ham"]
+  },
+  {
+    "name": "Boulette courgette",
+    "tags": ["vegetable", "beef"]
+  }
+]
