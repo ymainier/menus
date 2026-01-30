@@ -28,6 +28,7 @@ export default async function PlanPage({ params }: PlanPageProps) {
   }
 
   const { start, end } = getWeekDateRange(plan.weekNumber);
+  const doneCount = plan.meals.filter((m) => m.done).length;
 
   return (
     <>
@@ -39,10 +40,13 @@ export default async function PlanPage({ params }: PlanPageProps) {
       />
       <div className="space-y-4">
         <div>
-          <span className="text-lg font-bold">{plan.weekNumber}</span>{" "}
-          <span className="text-sm text-muted-foreground">
+          <h1 className="text-lg font-bold">
+            {plan.weekNumber}
+            {plan.meals.length > 0 && ` - ${doneCount}/${plan.meals.length}`}
+          </h1>
+          <p className="text-sm text-muted-foreground">
             from {formatDate(start)} to {formatDate(end)}
-          </span>
+          </p>
         </div>
         <div>
           <label className="text-sm text-muted-foreground">Meals</label>

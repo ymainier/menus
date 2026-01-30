@@ -37,6 +37,7 @@ export type WeekPlanWithMealNames = {
   weekNumber: string;
   createdAt: Date;
   mealNames: string[];
+  doneCount: number;
 };
 
 export async function getWeekPlansWithMeals(): Promise<WeekPlanWithMealNames[]> {
@@ -54,23 +55,29 @@ export async function getWeekPlansWithMeals(): Promise<WeekPlanWithMealNames[]> 
     .select({
       weekPlanId: plannedMeals.weekPlanId,
       mealName: meals.name,
+      done: plannedMeals.done,
     })
     .from(plannedMeals)
     .innerJoin(meals, eq(plannedMeals.mealId, meals.id))
     .where(inArray(plannedMeals.weekPlanId, planIds))
     .orderBy(asc(meals.name));
 
-  const mealsByPlanId = new Map<string, string[]>();
+  const mealsByPlanId = new Map<string, { names: string[]; doneCount: number }>();
   for (const row of mealsResult) {
-    const existing = mealsByPlanId.get(row.weekPlanId) ?? [];
-    existing.push(row.mealName);
+    const existing = mealsByPlanId.get(row.weekPlanId) ?? { names: [], doneCount: 0 };
+    existing.names.push(row.mealName);
+    if (row.done) existing.doneCount++;
     mealsByPlanId.set(row.weekPlanId, existing);
   }
 
-  return plansResult.map((plan) => ({
-    ...plan,
-    mealNames: mealsByPlanId.get(plan.id) ?? [],
-  }));
+  return plansResult.map((plan) => {
+    const data = mealsByPlanId.get(plan.id) ?? { names: [], doneCount: 0 };
+    return {
+      ...plan,
+      mealNames: data.names,
+      doneCount: data.doneCount,
+    };
+  });
 }
 
 export async function getWeekPlan(id: string): Promise<WeekPlan | null> {

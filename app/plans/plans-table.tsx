@@ -80,7 +80,11 @@ function PlanRow({ plan }: { plan: WeekPlanWithMealNames }) {
   return (
     <TableRow>
       <TableCell className="font-medium">{plan.weekNumber}</TableCell>
-      <TableCell>{plan.mealNames.length}</TableCell>
+      <TableCell>
+        {plan.mealNames.length > 0
+          ? `${plan.doneCount}/${plan.mealNames.length}`
+          : "0"}
+      </TableCell>
       <TableCell>
         <div className="flex gap-1">
           <Button variant="ghost" size="icon" asChild>

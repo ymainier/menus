@@ -25,18 +25,30 @@ export default async function Home() {
 
   const { start, end } = getWeekDateRange(plan.weekNumber);
 
+  const doneCount = plan.meals.filter((m) => m.done).length;
+
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h1 className="text-2xl font-bold">This Week</h1>
+        <h1 className="text-xl font-bold">
+          {plan.meals.length === 0 ? (
+            "This Week"
+          ) : (
+            <>
+              This Week -{" "}
+              <Link
+                href={`/plans/${plan.id}`}
+                className="underline hover:text-foreground"
+              >
+                {plan.weekNumber}
+              </Link>
+              {" - "}
+              {doneCount}/{plan.meals.length}
+            </>
+          )}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          <Link
-            href={`/plans/${plan.id}`}
-            className="underline hover:text-foreground"
-          >
-            {plan.weekNumber}
-          </Link>{" "}
-          &mdash; {formatDate(start)} to {formatDate(end)}
+          from {formatDate(start)} to {formatDate(end)}
         </p>
       </div>
       {plan.meals.length === 0 ? (
