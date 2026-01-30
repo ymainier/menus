@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { weekPlans, plannedMeals, meals, mealTags, tags } from "@/lib/db/schema";
 import { revalidatePath } from "next/cache";
 import { eq, desc, sql, asc, inArray } from "drizzle-orm";
+import { getCurrentWeekNumber, incrementWeek } from "@/lib/week-utils";
 
 export type WeekPlan = {
   id: string;
@@ -305,54 +306,26 @@ export async function togglePlannedMealDone(
   }
 }
 
-function getCurrentWeekNumber(): string {
-  const now = new Date();
+export async function getNextAvailableWeek(): Promise<string> {
+  // Get all existing week numbers
+  const existingPlans = await db
+    .select({ weekNumber: weekPlans.weekNumber })
+    .from(weekPlans);
+  const existingWeeks = new Set(existingPlans.map((p) => p.weekNumber));
 
-  // Get the ISO week for today
-  const year = now.getFullYear();
-  const jan4 = new Date(year, 0, 4);
-  const dayOfWeek = jan4.getDay();
-  const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-  const mondayOfWeek1 = new Date(jan4);
-  mondayOfWeek1.setDate(jan4.getDate() - daysToMonday);
+  // Start from next week
+  let candidate = incrementWeek(getCurrentWeekNumber());
 
-  // Calculate which ISO week today is in
-  const diffMs = now.getTime() - mondayOfWeek1.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const isoWeek = Math.floor(diffDays / 7) + 1;
-
-  // Get Monday of the current ISO week
-  const mondayOfCurrentWeek = new Date(mondayOfWeek1);
-  mondayOfCurrentWeek.setDate(mondayOfWeek1.getDate() + (isoWeek - 1) * 7);
-
-  // Our app weeks run Saturday to Friday
-  // Saturday = Monday + 5
-  const saturdayOfCurrentWeek = new Date(mondayOfCurrentWeek);
-  saturdayOfCurrentWeek.setDate(mondayOfCurrentWeek.getDate() + 5);
-
-  // If today is before the Saturday of this ISO week, we're in the previous app week
-  if (now < saturdayOfCurrentWeek) {
-    const prevWeek = isoWeek - 1;
-    if (prevWeek < 1) {
-      // Handle year boundary - use week 52 or 53 of previous year
-      const prevYear = year - 1;
-      const prevYearJan4 = new Date(prevYear, 0, 4);
-      const prevYearDayOfWeek = prevYearJan4.getDay();
-      const prevYearDaysToMonday =
-        prevYearDayOfWeek === 0 ? 6 : prevYearDayOfWeek - 1;
-      const prevYearMondayOfWeek1 = new Date(prevYearJan4);
-      prevYearMondayOfWeek1.setDate(prevYearJan4.getDate() - prevYearDaysToMonday);
-
-      // Find the last week of the previous year
-      const dec31 = new Date(prevYear, 11, 31);
-      const diffFromPrevYear = dec31.getTime() - prevYearMondayOfWeek1.getTime();
-      const lastWeek = Math.floor(diffFromPrevYear / (1000 * 60 * 60 * 24 * 7)) + 1;
-      return `${prevYear}-W${String(lastWeek).padStart(2, "0")}`;
+  // Find first available week (up to 10 iterations)
+  for (let i = 0; i < 10; i++) {
+    if (!existingWeeks.has(candidate)) {
+      return candidate;
     }
-    return `${year}-W${String(prevWeek).padStart(2, "0")}`;
+    candidate = incrementWeek(candidate);
   }
 
-  return `${year}-W${String(isoWeek).padStart(2, "0")}`;
+  // If all 10 weeks are taken, return the last checked week
+  return candidate;
 }
 
 export async function getCurrentWeekPlanWithMealsAndTags(): Promise<WeekPlanWithMealsAndTags | null> {
