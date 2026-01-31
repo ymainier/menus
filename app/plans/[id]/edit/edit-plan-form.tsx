@@ -26,7 +26,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Ellipsis, List, Save, Trash2 } from "lucide-react";
+import { Ellipsis, List, Save, Square, SquareCheck, Trash2 } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ButtonGroup } from "@/components/ui/button-group";
 import {
   updateWeekPlan,
@@ -53,23 +54,36 @@ export function EditPlanForm({ plan, allMeals, initialTags }: EditPlanFormProps)
   const [meals, setMeals] = useState<MealWithTags[]>(allMeals);
   const [tags, setTags] = useState<Tag[]>(initialTags);
   const [filter, setFilter] = useState("");
+  const [visibility, setVisibility] = useState<"all" | "selected" | "unselected">("all");
   const [error, setError] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isSaving, startSaveTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
 
   const filteredMeals = useMemo(() => {
-    const searchTerm = filter.toLowerCase().trim();
-    if (!searchTerm) return meals;
+    let result = meals;
 
-    return meals.filter((meal) => {
-      const nameMatches = meal.name.toLowerCase().includes(searchTerm);
-      const tagMatches = meal.tags.some((tag) =>
-        tag.name.toLowerCase().includes(searchTerm),
-      );
-      return nameMatches || tagMatches;
-    });
-  }, [meals, filter]);
+    // Apply visibility filter
+    if (visibility === "selected") {
+      result = result.filter((meal) => selectedMealIds.includes(meal.id));
+    } else if (visibility === "unselected") {
+      result = result.filter((meal) => !selectedMealIds.includes(meal.id));
+    }
+
+    // Apply text search filter
+    const searchTerm = filter.toLowerCase().trim();
+    if (searchTerm) {
+      result = result.filter((meal) => {
+        const nameMatches = meal.name.toLowerCase().includes(searchTerm);
+        const tagMatches = meal.tags.some((tag) =>
+          tag.name.toLowerCase().includes(searchTerm),
+        );
+        return nameMatches || tagMatches;
+      });
+    }
+
+    return result;
+  }, [meals, filter, visibility, selectedMealIds]);
 
   const handleMealCreated = (meal: Meal) => {
     const mealWithTags: MealWithTags = {
@@ -153,6 +167,22 @@ export function EditPlanForm({ plan, allMeals, initialTags }: EditPlanFormProps)
             placeholder="Filter by name or tag..."
             className="flex-1"
           />
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            value={visibility}
+            onValueChange={(value) => value && setVisibility(value as "all" | "selected" | "unselected")}
+          >
+            <ToggleGroupItem value="all" aria-label="Show all meals">
+              <List className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="selected" aria-label="Show selected meals only">
+              <SquareCheck className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="unselected" aria-label="Show unselected meals only">
+              <Square className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
           <CreateMealDialog
             tags={tags}
             onMealCreated={handleMealCreated}
