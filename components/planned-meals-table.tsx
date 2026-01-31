@@ -1,3 +1,6 @@
+"use client";
+
+import { memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -20,7 +23,7 @@ interface PlannedMealsTableProps {
   meals: PlannedMeal[];
 }
 
-export function PlannedMealsTable({ meals }: PlannedMealsTableProps) {
+export const PlannedMealsTable = memo(function PlannedMealsTable({ meals }: PlannedMealsTableProps) {
   return (
     <div className="border rounded-md overflow-hidden">
       <Table className="table-fixed">
@@ -64,4 +67,4 @@ export function PlannedMealsTable({ meals }: PlannedMealsTableProps) {
       </Table>
     </div>
   );
-}
+});

@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { meals, mealTags, tags } from "@/lib/db/schema";
 import { revalidatePath } from "next/cache";
-import { eq, asc, inArray } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth-guard";
 
 export type Tag = {
@@ -23,25 +23,25 @@ type ActionResult<T = void> =
   | { success: false; error: string };
 
 export async function getMeals(): Promise<Meal[]> {
-  const mealsResult = await db.select().from(meals).orderBy(asc(meals.name));
+  // Fetch meals and tags in parallel to eliminate waterfall
+  const [mealsResult, allMealTagsResult] = await Promise.all([
+    db.select().from(meals).orderBy(asc(meals.name)),
+    db
+      .select({
+        mealId: mealTags.mealId,
+        tagId: tags.id,
+        tagName: tags.name,
+      })
+      .from(mealTags)
+      .innerJoin(tags, eq(mealTags.tagId, tags.id)),
+  ]);
 
   if (mealsResult.length === 0) {
     return [];
   }
 
-  const mealIds = mealsResult.map((m) => m.id);
-  const mealTagsResult = await db
-    .select({
-      mealId: mealTags.mealId,
-      tagId: tags.id,
-      tagName: tags.name,
-    })
-    .from(mealTags)
-    .innerJoin(tags, eq(mealTags.tagId, tags.id))
-    .where(inArray(mealTags.mealId, mealIds));
-
   const tagsByMealId = new Map<string, Tag[]>();
-  for (const row of mealTagsResult) {
+  for (const row of allMealTagsResult) {
     const existing = tagsByMealId.get(row.mealId) ?? [];
     existing.push({ id: row.tagId, name: row.tagName });
     tagsByMealId.set(row.mealId, existing);

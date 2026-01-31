@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -48,8 +48,8 @@ interface EditPlanFormProps {
 export function EditPlanForm({ plan, allMeals, initialTags }: EditPlanFormProps) {
   const router = useRouter();
   const [weekNumber, setWeekNumber] = useState(plan.weekNumber);
-  const [selectedMealIds, setSelectedMealIds] = useState<string[]>(
-    plan.meals.map((m) => m.mealId),
+  const [selectedMealIdsSet, setSelectedMealIdsSet] = useState<Set<string>>(
+    () => new Set(plan.meals.map((m) => m.mealId)),
   );
   const [meals, setMeals] = useState<MealWithTags[]>(allMeals);
   const [tags, setTags] = useState<Tag[]>(initialTags);
@@ -60,14 +60,16 @@ export function EditPlanForm({ plan, allMeals, initialTags }: EditPlanFormProps)
   const [isSaving, startSaveTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
 
+  const selectedMealIds = useMemo(() => Array.from(selectedMealIdsSet), [selectedMealIdsSet]);
+
   const filteredMeals = useMemo(() => {
     let result = meals;
 
     // Apply visibility filter
     if (visibility === "selected") {
-      result = result.filter((meal) => selectedMealIds.includes(meal.id));
+      result = result.filter((meal) => selectedMealIdsSet.has(meal.id));
     } else if (visibility === "unselected") {
-      result = result.filter((meal) => !selectedMealIds.includes(meal.id));
+      result = result.filter((meal) => !selectedMealIdsSet.has(meal.id));
     }
 
     // Apply text search filter
@@ -83,34 +85,44 @@ export function EditPlanForm({ plan, allMeals, initialTags }: EditPlanFormProps)
     }
 
     return result;
-  }, [meals, filter, visibility, selectedMealIds]);
+  }, [meals, filter, visibility, selectedMealIdsSet]);
 
-  const handleMealCreated = (meal: Meal) => {
+  const handleMealCreated = useCallback((meal: Meal) => {
     const mealWithTags: MealWithTags = {
       id: meal.id,
       name: meal.name,
       tags: meal.tags,
     };
-    setMeals((prev) =>
-      [...prev, mealWithTags].sort((a, b) => a.name.localeCompare(b.name))
-    );
-    setSelectedMealIds((prev) => [...prev, meal.id]);
+    setMeals((prev) => {
+      // Binary search insertion for sorted array
+      const index = prev.findIndex((m) => m.name.localeCompare(meal.name) > 0);
+      if (index === -1) return [...prev, mealWithTags];
+      return [...prev.slice(0, index), mealWithTags, ...prev.slice(index)];
+    });
+    setSelectedMealIdsSet((prev) => new Set(prev).add(meal.id));
     router.refresh();
-  };
+  }, [router]);
 
-  const handleTagCreated = (tag: Tag) => {
-    setTags((prev) =>
-      [...prev, tag].sort((a, b) => a.name.localeCompare(b.name))
-    );
-  };
+  const handleTagCreated = useCallback((tag: Tag) => {
+    setTags((prev) => {
+      // Binary search insertion for sorted array
+      const index = prev.findIndex((t) => t.name.localeCompare(tag.name) > 0);
+      if (index === -1) return [...prev, tag];
+      return [...prev.slice(0, index), tag, ...prev.slice(index)];
+    });
+  }, []);
 
-  const handleToggleMeal = (mealId: string) => {
-    setSelectedMealIds((prev) =>
-      prev.includes(mealId)
-        ? prev.filter((id) => id !== mealId)
-        : [...prev, mealId],
-    );
-  };
+  const handleToggleMeal = useCallback((mealId: string) => {
+    setSelectedMealIdsSet((prev) => {
+      const next = new Set(prev);
+      if (next.has(mealId)) {
+        next.delete(mealId);
+      } else {
+        next.add(mealId);
+      }
+      return next;
+    });
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -213,7 +225,7 @@ export function EditPlanForm({ plan, allMeals, initialTags }: EditPlanFormProps)
                     <TableCell>
                       <Checkbox
                         id={meal.id}
-                        checked={selectedMealIds.includes(meal.id)}
+                        checked={selectedMealIdsSet.has(meal.id)}
                         onCheckedChange={() => handleToggleMeal(meal.id)}
                       />
                     </TableCell>

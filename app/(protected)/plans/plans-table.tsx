@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { memo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -60,7 +60,7 @@ export function PlansTable({ plans }: PlansTableProps) {
   );
 }
 
-function PlanRow({ plan }: { plan: WeekPlanWithMealNames }) {
+const PlanRow = memo(function PlanRow({ plan }: { plan: WeekPlanWithMealNames }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isDeleting, startTransition] = useTransition();
@@ -128,4 +128,4 @@ function PlanRow({ plan }: { plan: WeekPlanWithMealNames }) {
       </TableCell>
     </TableRow>
   );
-}
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { memo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -61,7 +61,7 @@ export function MealsTable({ meals }: MealsTableProps) {
   );
 }
 
-function MealRow({ meal }: { meal: Meal }) {
+const MealRow = memo(function MealRow({ meal }: { meal: Meal }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isDeleting, startTransition] = useTransition();
@@ -127,4 +127,4 @@ function MealRow({ meal }: { meal: Meal }) {
       </TableCell>
     </TableRow>
   );
-}
+});

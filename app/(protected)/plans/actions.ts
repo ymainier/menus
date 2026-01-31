@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { weekPlans, plannedMeals, meals, mealTags, tags } from "@/lib/db/schema";
 import { revalidatePath } from "next/cache";
-import { eq, desc, sql, asc, inArray } from "drizzle-orm";
+import { eq, desc, sql, asc } from "drizzle-orm";
 import { getCurrentWeekNumber, incrementWeek } from "@/lib/week-utils";
 import { requireAuth } from "@/lib/auth-guard";
 
@@ -43,29 +43,26 @@ export type WeekPlanWithMealNames = {
 };
 
 export async function getWeekPlansWithMeals(): Promise<WeekPlanWithMealNames[]> {
-  const plansResult = await db
-    .select()
-    .from(weekPlans)
-    .orderBy(desc(weekPlans.weekNumber));
+  // Fetch plans and all meals in parallel to eliminate waterfall
+  const [plansResult, allMealsResult] = await Promise.all([
+    db.select().from(weekPlans).orderBy(desc(weekPlans.weekNumber)),
+    db
+      .select({
+        weekPlanId: plannedMeals.weekPlanId,
+        mealName: meals.name,
+        done: plannedMeals.done,
+      })
+      .from(plannedMeals)
+      .innerJoin(meals, eq(plannedMeals.mealId, meals.id))
+      .orderBy(asc(meals.name)),
+  ]);
 
   if (plansResult.length === 0) {
     return [];
   }
 
-  const planIds = plansResult.map((p) => p.id);
-  const mealsResult = await db
-    .select({
-      weekPlanId: plannedMeals.weekPlanId,
-      mealName: meals.name,
-      done: plannedMeals.done,
-    })
-    .from(plannedMeals)
-    .innerJoin(meals, eq(plannedMeals.mealId, meals.id))
-    .where(inArray(plannedMeals.weekPlanId, planIds))
-    .orderBy(asc(meals.name));
-
   const mealsByPlanId = new Map<string, { names: string[]; doneCount: number }>();
-  for (const row of mealsResult) {
+  for (const row of allMealsResult) {
     const existing = mealsByPlanId.get(row.weekPlanId) ?? { names: [], doneCount: 0 };
     existing.names.push(row.mealName);
     if (row.done) existing.doneCount++;
@@ -226,53 +223,55 @@ export type WeekPlanWithMealsAndTags = {
 export async function getWeekPlanWithMealsAndTags(
   id: string
 ): Promise<WeekPlanWithMealsAndTags | null> {
-  const [plan] = await db.select().from(weekPlans).where(eq(weekPlans.id, id));
+  // Fetch plan and meals with tags in parallel using a single JOIN query
+  const [planResult, mealsWithTagsResult] = await Promise.all([
+    db.select().from(weekPlans).where(eq(weekPlans.id, id)),
+    db
+      .select({
+        plannedMealId: plannedMeals.id,
+        mealId: meals.id,
+        mealName: meals.name,
+        done: plannedMeals.done,
+        tagId: tags.id,
+        tagName: tags.name,
+      })
+      .from(plannedMeals)
+      .innerJoin(meals, eq(plannedMeals.mealId, meals.id))
+      .leftJoin(mealTags, eq(mealTags.mealId, meals.id))
+      .leftJoin(tags, eq(mealTags.tagId, tags.id))
+      .where(eq(plannedMeals.weekPlanId, id))
+      .orderBy(asc(meals.name)),
+  ]);
 
+  const [plan] = planResult;
   if (!plan) return null;
 
-  const planMeals = await db
-    .select({
-      id: plannedMeals.id,
-      mealId: meals.id,
-      mealName: meals.name,
-      done: plannedMeals.done,
-    })
-    .from(plannedMeals)
-    .innerJoin(meals, eq(plannedMeals.mealId, meals.id))
-    .where(eq(plannedMeals.weekPlanId, id))
-    .orderBy(asc(meals.name));
-
-  if (planMeals.length === 0) {
-    return { ...plan, meals: [] };
+  // Group results to build meals with their tags
+  const mealsMap = new Map<string, PlannedMealWithTags>();
+  for (const row of mealsWithTagsResult) {
+    const existing = mealsMap.get(row.plannedMealId);
+    if (!existing) {
+      mealsMap.set(row.plannedMealId, {
+        id: row.plannedMealId,
+        mealId: row.mealId,
+        mealName: row.mealName,
+        done: row.done,
+        tags: row.tagId ? [{ id: row.tagId, name: row.tagName! }] : [],
+      });
+    } else if (row.tagId) {
+      existing.tags.push({ id: row.tagId, name: row.tagName! });
+    }
   }
 
-  // Fetch tags for all meals
-  const mealIds = planMeals.map((m) => m.mealId);
-  const mealTagsResult = await db
-    .select({
-      mealId: mealTags.mealId,
-      tagId: tags.id,
-      tagName: tags.name,
-    })
-    .from(mealTags)
-    .innerJoin(tags, eq(mealTags.tagId, tags.id))
-    .where(inArray(mealTags.mealId, mealIds));
-
-  const tagsByMealId = new Map<string, MealTag[]>();
-  for (const row of mealTagsResult) {
-    const existing = tagsByMealId.get(row.mealId) ?? [];
-    existing.push({ id: row.tagId, name: row.tagName });
-    tagsByMealId.set(row.mealId, existing);
-  }
+  // Sort tags within each meal
+  const mealsArray = Array.from(mealsMap.values()).map((meal) => ({
+    ...meal,
+    tags: meal.tags.sort((a, b) => a.name.localeCompare(b.name)),
+  }));
 
   return {
     ...plan,
-    meals: planMeals.map((meal) => ({
-      ...meal,
-      tags: (tagsByMealId.get(meal.mealId) ?? []).sort((a, b) =>
-        a.name.localeCompare(b.name)
-      ),
-    })),
+    meals: mealsArray,
   };
 }
 
@@ -342,75 +341,30 @@ export async function getCurrentWeekPlanWithMealsAndTags(): Promise<WeekPlanWith
 
   if (!plan) return null;
 
-  const planMeals = await db
-    .select({
-      id: plannedMeals.id,
-      mealId: meals.id,
-      mealName: meals.name,
-      done: plannedMeals.done,
-    })
-    .from(plannedMeals)
-    .innerJoin(meals, eq(plannedMeals.mealId, meals.id))
-    .where(eq(plannedMeals.weekPlanId, plan.id))
-    .orderBy(asc(meals.name));
-
-  if (planMeals.length === 0) {
-    return { ...plan, meals: [] };
-  }
-
-  // Fetch tags for all meals
-  const mealIds = planMeals.map((m) => m.mealId);
-  const mealTagsResult = await db
-    .select({
-      mealId: mealTags.mealId,
-      tagId: tags.id,
-      tagName: tags.name,
-    })
-    .from(mealTags)
-    .innerJoin(tags, eq(mealTags.tagId, tags.id))
-    .where(inArray(mealTags.mealId, mealIds));
-
-  const tagsByMealId = new Map<string, MealTag[]>();
-  for (const row of mealTagsResult) {
-    const existing = tagsByMealId.get(row.mealId) ?? [];
-    existing.push({ id: row.tagId, name: row.tagName });
-    tagsByMealId.set(row.mealId, existing);
-  }
-
-  return {
-    ...plan,
-    meals: planMeals.map((meal) => ({
-      ...meal,
-      tags: (tagsByMealId.get(meal.mealId) ?? []).sort((a, b) =>
-        a.name.localeCompare(b.name)
-      ),
-    })),
-  };
+  // Reuse the optimized function to avoid code duplication
+  return getWeekPlanWithMealsAndTags(plan.id);
 }
 
 export async function getAllMealsWithTags(): Promise<MealWithTags[]> {
-  const mealsResult = await db
-    .select({ id: meals.id, name: meals.name })
-    .from(meals)
-    .orderBy(asc(meals.name));
+  // Fetch meals and tags in parallel to eliminate waterfall
+  const [mealsResult, allMealTagsResult] = await Promise.all([
+    db.select({ id: meals.id, name: meals.name }).from(meals).orderBy(asc(meals.name)),
+    db
+      .select({
+        mealId: mealTags.mealId,
+        tagId: tags.id,
+        tagName: tags.name,
+      })
+      .from(mealTags)
+      .innerJoin(tags, eq(mealTags.tagId, tags.id)),
+  ]);
 
   if (mealsResult.length === 0) {
     return [];
   }
 
-  const mealIds = mealsResult.map((m) => m.id);
-  const mealTagsResult = await db
-    .select({
-      mealId: mealTags.mealId,
-      tagId: tags.id,
-      tagName: tags.name,
-    })
-    .from(mealTags)
-    .innerJoin(tags, eq(mealTags.tagId, tags.id))
-    .where(inArray(mealTags.mealId, mealIds));
-
   const tagsByMealId = new Map<string, MealTag[]>();
-  for (const row of mealTagsResult) {
+  for (const row of allMealTagsResult) {
     const existing = tagsByMealId.get(row.mealId) ?? [];
     existing.push({ id: row.tagId, name: row.tagName });
     tagsByMealId.set(row.mealId, existing);

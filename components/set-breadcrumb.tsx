@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useBreadcrumb, BreadcrumbItem } from "@/components/breadcrumb-context";
 
 interface SetBreadcrumbProps {
@@ -9,12 +9,16 @@ interface SetBreadcrumbProps {
 
 export function SetBreadcrumb({ items }: SetBreadcrumbProps) {
   const { setItems } = useBreadcrumb();
+  const prevItemsRef = useRef<string>("");
   const itemsKey = JSON.stringify(items);
 
   useEffect(() => {
-    setItems(items);
+    if (prevItemsRef.current !== itemsKey) {
+      prevItemsRef.current = itemsKey;
+      setItems(items);
+    }
     return () => setItems([]);
-  }, [itemsKey, items, setItems]);
+  }, [itemsKey, setItems, items]);
 
   return null;
 }
