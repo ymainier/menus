@@ -32,7 +32,7 @@ export function NewPlanForm({ defaultWeek }: NewPlanFormProps) {
       const result = await createWeekPlan(weekNumber);
 
       if (result.success) {
-        router.push("/plans");
+        router.push(`/plans/${result.data.id}/edit`);
       } else {
         setError(result.error);
       }
