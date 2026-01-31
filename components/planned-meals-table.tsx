@@ -22,12 +22,12 @@ interface PlannedMealsTableProps {
 
 export function PlannedMealsTable({ meals }: PlannedMealsTableProps) {
   return (
-    <div className="border rounded-md">
-      <Table>
+    <div className="border rounded-md overflow-hidden">
+      <Table className="table-fixed">
         <TableHeader>
           <TableRow>
             <TableHead className="w-12"></TableHead>
-            <TableHead>Name</TableHead>
+            <TableHead className="w-1/2">Name</TableHead>
             <TableHead>Tags</TableHead>
           </TableRow>
         </TableHeader>
@@ -50,7 +50,7 @@ export function PlannedMealsTable({ meals }: PlannedMealsTableProps) {
                 </label>
               </TableCell>
               <TableCell>
-                <div className="flex gap-1 flex-wrap">
+                <div className="flex gap-1 overflow-hidden">
                   {meal.tags.map((tag) => (
                     <Badge key={tag.id} variant="secondary">
                       {tag.name}
