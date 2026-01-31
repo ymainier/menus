@@ -97,7 +97,7 @@ export const plannedMeals = pgTable("planned_meals", {
     .references(() => weekPlans.id, { onDelete: "cascade" }),
   mealId: uuid("meal_id")
     .notNull()
-    .references(() => meals.id, { onDelete: "restrict" }),
+    .references(() => meals.id, { onDelete: "cascade" }),
   done: boolean("done").default(false).notNull(),
 });
 

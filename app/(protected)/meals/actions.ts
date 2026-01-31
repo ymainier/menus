@@ -198,16 +198,7 @@ export async function deleteMeal(id: string): Promise<ActionResult> {
 
     revalidatePath("/meals");
     return { success: true, data: undefined };
-  } catch (e) {
-    if (
-      e instanceof Error &&
-      e.message.includes("violates foreign key constraint")
-    ) {
-      return {
-        success: false,
-        error: "Cannot delete meal that is used in a week plan",
-      };
-    }
+  } catch {
     return { success: false, error: "Failed to delete meal" };
   }
 }
