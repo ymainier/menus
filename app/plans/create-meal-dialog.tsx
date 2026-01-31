@@ -47,7 +47,7 @@ export function CreateMealDialog({
     setSelectedTagIds((prev) =>
       prev.includes(tagId)
         ? prev.filter((id) => id !== tagId)
-        : [...prev, tagId]
+        : [...prev, tagId],
     );
   };
 
@@ -78,9 +78,9 @@ export function CreateMealDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button type="button" variant="outline" size="sm">
-          <Plus className="size-4 mr-1" />
-          Add Meal
+        <Button type="button" variant="outline">
+          <Plus className="size-4" />
+          <span className="sr-only">Create Meal</span>
         </Button>
       </DialogTrigger>
       <DialogContent>
