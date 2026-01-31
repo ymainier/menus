@@ -49,7 +49,6 @@ export default async function PlanPage({ params }: PlanPageProps) {
           </p>
         </div>
         <div>
-          <label className="text-sm text-muted-foreground">Meals</label>
           {plan.meals.length === 0 ? (
             <p className="text-lg text-muted-foreground">No meals planned</p>
           ) : (

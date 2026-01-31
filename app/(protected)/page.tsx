@@ -11,7 +11,7 @@ export default async function Home() {
   if (!plan) {
     return (
       <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold">This Week</h1>
+        <h1 className="text-xl font-bold">This Week</h1>
         <p className="text-muted-foreground">
           No plan for this week yet.{" "}
           <Link href="/plans/new" className="underline hover:text-foreground">
@@ -30,25 +30,16 @@ export default async function Home() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h1 className="text-xl font-bold">
-          {plan.meals.length === 0 ? (
-            "This Week"
-          ) : (
-            <>
-              This Week -{" "}
-              <Link
-                href={`/plans/${plan.id}`}
-                className="underline hover:text-foreground"
-              >
-                {plan.weekNumber}
-              </Link>
-              {" - "}
-              {doneCount}/{plan.meals.length}
-            </>
-          )}
-        </h1>
+        <h1 className="text-xl font-bold">This Week</h1>
         <p className="text-sm text-muted-foreground">
-          from {formatDate(start)} to {formatDate(end)}
+          from {formatDate(start)} to {formatDate(end)} -{" "}
+          <Link
+            href={`/plans/${plan.id}`}
+            className="underline hover:text-foreground"
+          >
+            {plan.weekNumber}
+          </Link>{" "}
+          - {doneCount}/{plan.meals.length}
         </p>
       </div>
       {plan.meals.length === 0 ? (
