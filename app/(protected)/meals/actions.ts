@@ -50,7 +50,7 @@ export async function getMeals(): Promise<Meal[]> {
   return mealsResult.map((meal) => ({
     ...meal,
     tags: (tagsByMealId.get(meal.id) ?? []).sort((a, b) =>
-      a.name.localeCompare(b.name)
+      a.name.localeCompare(b.name),
     ),
   }));
 }
@@ -78,7 +78,7 @@ export async function getMeal(id: string): Promise<Meal | null> {
 
 export async function createMeal(
   name: string,
-  tagIds: string[] = []
+  tagIds: string[] = [],
 ): Promise<ActionResult<Meal>> {
   await requireAuth();
   const trimmedName = name?.trim();
@@ -125,7 +125,7 @@ export async function createMeal(
 export async function updateMeal(
   id: string,
   name: string,
-  tagIds: string[] = []
+  tagIds: string[] = [],
 ): Promise<ActionResult<Meal>> {
   await requireAuth();
   const trimmedName = name?.trim();

@@ -54,6 +54,7 @@ pnpm user:delete <username>        # Delete user
 ### Plan Generation Logic
 
 Two seasonal plans (Winter/Summer) with:
+
 1. Fixed meals added by name
 2. Generated meals selected randomly by tag constraints
 3. Exclusion of meals marked done in previous week

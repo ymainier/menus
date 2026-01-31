@@ -26,7 +26,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Ellipsis, List, Save, Square, SquareCheck, Trash2 } from "lucide-react";
+import {
+  Ellipsis,
+  List,
+  Save,
+  Square,
+  SquareCheck,
+  Trash2,
+} from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ButtonGroup } from "@/components/ui/button-group";
 import {
@@ -45,7 +52,11 @@ interface EditPlanFormProps {
   initialTags: Tag[];
 }
 
-export function EditPlanForm({ plan, allMeals, initialTags }: EditPlanFormProps) {
+export function EditPlanForm({
+  plan,
+  allMeals,
+  initialTags,
+}: EditPlanFormProps) {
   const router = useRouter();
   const [weekNumber, setWeekNumber] = useState(plan.weekNumber);
   const [selectedMealIdsSet, setSelectedMealIdsSet] = useState<Set<string>>(
@@ -54,13 +65,18 @@ export function EditPlanForm({ plan, allMeals, initialTags }: EditPlanFormProps)
   const [meals, setMeals] = useState<MealWithTags[]>(allMeals);
   const [tags, setTags] = useState<Tag[]>(initialTags);
   const [filter, setFilter] = useState("");
-  const [visibility, setVisibility] = useState<"all" | "selected" | "unselected">("all");
+  const [visibility, setVisibility] = useState<
+    "all" | "selected" | "unselected"
+  >("all");
   const [error, setError] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isSaving, startSaveTransition] = useTransition();
   const [isDeleting, startDeleteTransition] = useTransition();
 
-  const selectedMealIds = useMemo(() => Array.from(selectedMealIdsSet), [selectedMealIdsSet]);
+  const selectedMealIds = useMemo(
+    () => Array.from(selectedMealIdsSet),
+    [selectedMealIdsSet],
+  );
 
   const filteredMeals = useMemo(() => {
     let result = meals;
@@ -87,21 +103,26 @@ export function EditPlanForm({ plan, allMeals, initialTags }: EditPlanFormProps)
     return result;
   }, [meals, filter, visibility, selectedMealIdsSet]);
 
-  const handleMealCreated = useCallback((meal: Meal) => {
-    const mealWithTags: MealWithTags = {
-      id: meal.id,
-      name: meal.name,
-      tags: meal.tags,
-    };
-    setMeals((prev) => {
-      // Binary search insertion for sorted array
-      const index = prev.findIndex((m) => m.name.localeCompare(meal.name) > 0);
-      if (index === -1) return [...prev, mealWithTags];
-      return [...prev.slice(0, index), mealWithTags, ...prev.slice(index)];
-    });
-    setSelectedMealIdsSet((prev) => new Set(prev).add(meal.id));
-    router.refresh();
-  }, [router]);
+  const handleMealCreated = useCallback(
+    (meal: Meal) => {
+      const mealWithTags: MealWithTags = {
+        id: meal.id,
+        name: meal.name,
+        tags: meal.tags,
+      };
+      setMeals((prev) => {
+        // Binary search insertion for sorted array
+        const index = prev.findIndex(
+          (m) => m.name.localeCompare(meal.name) > 0,
+        );
+        if (index === -1) return [...prev, mealWithTags];
+        return [...prev.slice(0, index), mealWithTags, ...prev.slice(index)];
+      });
+      setSelectedMealIdsSet((prev) => new Set(prev).add(meal.id));
+      router.refresh();
+    },
+    [router],
+  );
 
   const handleTagCreated = useCallback((tag: Tag) => {
     setTags((prev) => {
@@ -183,15 +204,23 @@ export function EditPlanForm({ plan, allMeals, initialTags }: EditPlanFormProps)
             type="single"
             variant="outline"
             value={visibility}
-            onValueChange={(value) => value && setVisibility(value as "all" | "selected" | "unselected")}
+            onValueChange={(value) =>
+              value && setVisibility(value as "all" | "selected" | "unselected")
+            }
           >
             <ToggleGroupItem value="all" aria-label="Show all meals">
               <List className="h-4 w-4" />
             </ToggleGroupItem>
-            <ToggleGroupItem value="selected" aria-label="Show selected meals only">
+            <ToggleGroupItem
+              value="selected"
+              aria-label="Show selected meals only"
+            >
               <SquareCheck className="h-4 w-4" />
             </ToggleGroupItem>
-            <ToggleGroupItem value="unselected" aria-label="Show unselected meals only">
+            <ToggleGroupItem
+              value="unselected"
+              aria-label="Show unselected meals only"
+            >
               <Square className="h-4 w-4" />
             </ToggleGroupItem>
           </ToggleGroup>

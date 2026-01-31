@@ -80,7 +80,9 @@ const MealRow = memo(function MealRow({ meal }: { meal: Meal }) {
 
   return (
     <TableRow>
-      <TableCell className="font-medium whitespace-normal">{meal.name}</TableCell>
+      <TableCell className="font-medium whitespace-normal">
+        {meal.name}
+      </TableCell>
       <TableCell>
         <div className="flex flex-wrap gap-1">
           {meal.tags.map((tag) => (

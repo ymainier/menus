@@ -7,7 +7,9 @@ export default async function NewMealPage() {
 
   return (
     <>
-      <SetBreadcrumb items={[{ label: "Meals", href: "/meals" }, { label: "New" }]} />
+      <SetBreadcrumb
+        items={[{ label: "Meals", href: "/meals" }, { label: "New" }]}
+      />
       <NewMealForm initialTags={tags} />
     </>
   );

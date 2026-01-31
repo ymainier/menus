@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 
 export interface BreadcrumbItem {
   label: string;
@@ -12,7 +18,9 @@ interface BreadcrumbContextType {
   setItems: (items: BreadcrumbItem[]) => void;
 }
 
-const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(undefined);
+const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(
+  undefined,
+);
 
 export function BreadcrumbProvider({ children }: { children: ReactNode }) {
   const [items, setItemsState] = useState<BreadcrumbItem[]>([]);

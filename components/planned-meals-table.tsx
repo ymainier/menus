@@ -23,7 +23,9 @@ interface PlannedMealsTableProps {
   meals: PlannedMeal[];
 }
 
-export const PlannedMealsTable = memo(function PlannedMealsTable({ meals }: PlannedMealsTableProps) {
+export const PlannedMealsTable = memo(function PlannedMealsTable({
+  meals,
+}: PlannedMealsTableProps) {
   return (
     <div className="border rounded-md overflow-hidden">
       <Table className="table-fixed">

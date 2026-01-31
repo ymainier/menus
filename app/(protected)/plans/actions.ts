@@ -1,7 +1,13 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { weekPlans, plannedMeals, meals, mealTags, tags } from "@/lib/db/schema";
+import {
+  weekPlans,
+  plannedMeals,
+  meals,
+  mealTags,
+  tags,
+} from "@/lib/db/schema";
 import { revalidatePath } from "next/cache";
 import { eq, desc, sql, asc } from "drizzle-orm";
 import { getCurrentWeekNumber, incrementWeek } from "@/lib/week-utils";
@@ -42,7 +48,9 @@ export type WeekPlanWithMealNames = {
   doneCount: number;
 };
 
-export async function getWeekPlansWithMeals(): Promise<WeekPlanWithMealNames[]> {
+export async function getWeekPlansWithMeals(): Promise<
+  WeekPlanWithMealNames[]
+> {
   // Fetch plans and all meals in parallel to eliminate waterfall
   const [plansResult, allMealsResult] = await Promise.all([
     db.select().from(weekPlans).orderBy(desc(weekPlans.weekNumber)),
@@ -61,9 +69,15 @@ export async function getWeekPlansWithMeals(): Promise<WeekPlanWithMealNames[]> 
     return [];
   }
 
-  const mealsByPlanId = new Map<string, { names: string[]; doneCount: number }>();
+  const mealsByPlanId = new Map<
+    string,
+    { names: string[]; doneCount: number }
+  >();
   for (const row of allMealsResult) {
-    const existing = mealsByPlanId.get(row.weekPlanId) ?? { names: [], doneCount: 0 };
+    const existing = mealsByPlanId.get(row.weekPlanId) ?? {
+      names: [],
+      doneCount: 0,
+    };
     existing.names.push(row.mealName);
     if (row.done) existing.doneCount++;
     mealsByPlanId.set(row.weekPlanId, existing);
@@ -96,7 +110,7 @@ export async function getWeekPlan(id: string): Promise<WeekPlan | null> {
 }
 
 export async function createWeekPlan(
-  weekNumber: string
+  weekNumber: string,
 ): Promise<ActionResult<{ id: string; weekNumber: string; createdAt: Date }>> {
   await requireAuth();
   const trimmedWeekNumber = weekNumber?.trim();
@@ -170,7 +184,7 @@ export type WeekPlanWithMeals = {
 };
 
 export async function getWeekPlanWithMeals(
-  id: string
+  id: string,
 ): Promise<WeekPlanWithMeals | null> {
   const [plan] = await db.select().from(weekPlans).where(eq(weekPlans.id, id));
 
@@ -221,7 +235,7 @@ export type WeekPlanWithMealsAndTags = {
 };
 
 export async function getWeekPlanWithMealsAndTags(
-  id: string
+  id: string,
 ): Promise<WeekPlanWithMealsAndTags | null> {
   // Fetch plan and meals with tags in parallel using a single JOIN query
   const [planResult, mealsWithTagsResult] = await Promise.all([
@@ -276,7 +290,7 @@ export async function getWeekPlanWithMealsAndTags(
 }
 
 export async function togglePlannedMealDone(
-  plannedMealId: string
+  plannedMealId: string,
 ): Promise<ActionResult<{ done: boolean }>> {
   await requireAuth();
   if (!plannedMealId) {
@@ -348,7 +362,10 @@ export async function getCurrentWeekPlanWithMealsAndTags(): Promise<WeekPlanWith
 export async function getAllMealsWithTags(): Promise<MealWithTags[]> {
   // Fetch meals and tags in parallel to eliminate waterfall
   const [mealsResult, allMealTagsResult] = await Promise.all([
-    db.select({ id: meals.id, name: meals.name }).from(meals).orderBy(asc(meals.name)),
+    db
+      .select({ id: meals.id, name: meals.name })
+      .from(meals)
+      .orderBy(asc(meals.name)),
     db
       .select({
         mealId: mealTags.mealId,
@@ -373,7 +390,7 @@ export async function getAllMealsWithTags(): Promise<MealWithTags[]> {
   return mealsResult.map((meal) => ({
     ...meal,
     tags: (tagsByMealId.get(meal.id) ?? []).sort((a, b) =>
-      a.name.localeCompare(b.name)
+      a.name.localeCompare(b.name),
     ),
   }));
 }
@@ -381,7 +398,7 @@ export async function getAllMealsWithTags(): Promise<MealWithTags[]> {
 export async function updateWeekPlan(
   id: string,
   weekNumber: string,
-  mealIds: string[]
+  mealIds: string[],
 ): Promise<ActionResult<WeekPlanWithMeals>> {
   await requireAuth();
   const trimmedWeekNumber = weekNumber?.trim();

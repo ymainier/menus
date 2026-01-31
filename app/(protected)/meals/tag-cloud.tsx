@@ -10,7 +10,12 @@ interface TagCloudProps {
   action?: React.ReactNode;
 }
 
-export function TagCloud({ tags, selectedTagIds, onToggleTag, action }: TagCloudProps) {
+export function TagCloud({
+  tags,
+  selectedTagIds,
+  onToggleTag,
+  action,
+}: TagCloudProps) {
   if (tags.length === 0 && !action) {
     return (
       <p className="text-muted-foreground text-sm">

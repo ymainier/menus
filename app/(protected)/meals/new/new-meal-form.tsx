@@ -23,7 +23,9 @@ export function NewMealForm({ initialTags }: NewMealFormProps) {
   const [isCreating, startTransition] = useTransition();
 
   const handleTagCreated = (tag: Tag) => {
-    setTags((prev) => [...prev, tag].sort((a, b) => a.name.localeCompare(b.name)));
+    setTags((prev) =>
+      [...prev, tag].sort((a, b) => a.name.localeCompare(b.name)),
+    );
     setSelectedTagIds((prev) => [...prev, tag.id]);
     router.refresh();
   };

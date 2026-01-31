@@ -60,7 +60,11 @@ export function PlansTable({ plans }: PlansTableProps) {
   );
 }
 
-const PlanRow = memo(function PlanRow({ plan }: { plan: WeekPlanWithMealNames }) {
+const PlanRow = memo(function PlanRow({
+  plan,
+}: {
+  plan: WeekPlanWithMealNames;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isDeleting, startTransition] = useTransition();

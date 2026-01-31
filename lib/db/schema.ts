@@ -81,7 +81,7 @@ export const mealTags = pgTable(
       .notNull()
       .references(() => tags.id, { onDelete: "cascade" }),
   },
-  (table) => [primaryKey({ columns: [table.mealId, table.tagId] })]
+  (table) => [primaryKey({ columns: [table.mealId, table.tagId] })],
 );
 
 export const weekPlans = pgTable("week_plans", {

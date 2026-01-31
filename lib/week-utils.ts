@@ -81,7 +81,10 @@ export function getCurrentWeekNumber(): string {
  * Parse an ISO week string and return the start (Saturday) and end (Friday) dates.
  * Our week starts on Saturday and ends on Friday.
  */
-export function getWeekDateRange(weekNumber: string): { start: Date; end: Date } {
+export function getWeekDateRange(weekNumber: string): {
+  start: Date;
+  end: Date;
+} {
   // Parse ISO week format "2025-W04"
   const match = weekNumber.match(/^(\d{4})-W(\d{2})$/);
   if (!match) {

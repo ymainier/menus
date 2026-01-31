@@ -58,10 +58,7 @@ async function seed() {
     // Add tag associations
     for (const tagName of mealData.tags) {
       const tagId = tagMap.get(tagName)!;
-      await db
-        .insert(mealTags)
-        .values({ mealId, tagId })
-        .onConflictDoNothing();
+      await db.insert(mealTags).values({ mealId, tagId }).onConflictDoNothing();
     }
   }
 

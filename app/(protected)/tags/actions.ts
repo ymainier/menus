@@ -50,7 +50,7 @@ export async function createTag(name: string): Promise<ActionResult<Tag>> {
 
 export async function updateTag(
   id: string,
-  name: string
+  name: string,
 ): Promise<ActionResult<Tag>> {
   await requireAuth();
   const trimmedName = name?.trim();
@@ -90,10 +90,7 @@ export async function deleteTag(id: string): Promise<ActionResult> {
   }
 
   try {
-    const [deleted] = await db
-      .delete(tags)
-      .where(eq(tags.id, id))
-      .returning();
+    const [deleted] = await db.delete(tags).where(eq(tags.id, id)).returning();
 
     if (!deleted) {
       return { success: false, error: "Tag not found" };

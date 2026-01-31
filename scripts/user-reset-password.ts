@@ -38,8 +38,8 @@ async function main() {
       .where(
         and(
           eq(account.userId, existingUser.id),
-          eq(account.providerId, "credential")
-        )
+          eq(account.providerId, "credential"),
+        ),
       )
       .returning();
 
