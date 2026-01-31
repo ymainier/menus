@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Menu } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -9,6 +10,13 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -69,7 +77,33 @@ export function Header({ user }: HeaderProps) {
             </Breadcrumb>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        {/* Mobile dropdown menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild className="sm:hidden">
+            <Button variant="ghost" size="icon">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link href="/plans">Plans</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/meals">Meals</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/tags">Tags</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut}>
+              Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Desktop navigation */}
+        <div className="hidden sm:flex items-center gap-2">
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
