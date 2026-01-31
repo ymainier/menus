@@ -5,6 +5,7 @@ import { weekPlans, plannedMeals, meals, mealTags, tags } from "@/lib/db/schema"
 import { revalidatePath } from "next/cache";
 import { eq, desc, sql, asc, inArray } from "drizzle-orm";
 import { getCurrentWeekNumber, incrementWeek } from "@/lib/week-utils";
+import { requireAuth } from "@/lib/auth-guard";
 
 export type WeekPlan = {
   id: string;
@@ -100,6 +101,7 @@ export async function getWeekPlan(id: string): Promise<WeekPlan | null> {
 export async function createWeekPlan(
   weekNumber: string
 ): Promise<ActionResult<{ id: string; weekNumber: string; createdAt: Date }>> {
+  await requireAuth();
   const trimmedWeekNumber = weekNumber?.trim();
   if (!trimmedWeekNumber) {
     return { success: false, error: "Week number is required" };
@@ -134,6 +136,7 @@ export async function createWeekPlan(
 }
 
 export async function deleteWeekPlan(id: string): Promise<ActionResult> {
+  await requireAuth();
   if (!id) {
     return { success: false, error: "Plan ID is required" };
   }
@@ -276,6 +279,7 @@ export async function getWeekPlanWithMealsAndTags(
 export async function togglePlannedMealDone(
   plannedMealId: string
 ): Promise<ActionResult<{ done: boolean }>> {
+  await requireAuth();
   if (!plannedMealId) {
     return { success: false, error: "Planned meal ID is required" };
   }
@@ -425,6 +429,7 @@ export async function updateWeekPlan(
   weekNumber: string,
   mealIds: string[]
 ): Promise<ActionResult<WeekPlanWithMeals>> {
+  await requireAuth();
   const trimmedWeekNumber = weekNumber?.trim();
   if (!trimmedWeekNumber) {
     return { success: false, error: "Week number is required" };

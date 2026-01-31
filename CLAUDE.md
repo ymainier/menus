@@ -21,7 +21,6 @@ pnpm db:studio    # Open Drizzle Studio
 # User management (after scripts are created)
 pnpm user:add <username>           # Create user, outputs password
 pnpm user:delete <username>        # Delete user
-pnpm user:reset-password <username> # Reset password
 ```
 
 ## Tech Stack

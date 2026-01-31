@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { meals, mealTags, tags } from "@/lib/db/schema";
 import { revalidatePath } from "next/cache";
 import { eq, asc, inArray } from "drizzle-orm";
+import { requireAuth } from "@/lib/auth-guard";
 
 export type Tag = {
   id: string;
@@ -79,6 +80,7 @@ export async function createMeal(
   name: string,
   tagIds: string[] = []
 ): Promise<ActionResult<Meal>> {
+  await requireAuth();
   const trimmedName = name?.trim();
   if (!trimmedName) {
     return { success: false, error: "Name is required" };
@@ -125,6 +127,7 @@ export async function updateMeal(
   name: string,
   tagIds: string[] = []
 ): Promise<ActionResult<Meal>> {
+  await requireAuth();
   const trimmedName = name?.trim();
   if (!trimmedName) {
     return { success: false, error: "Name is required" };
@@ -178,6 +181,7 @@ export async function updateMeal(
 }
 
 export async function deleteMeal(id: string): Promise<ActionResult> {
+  await requireAuth();
   if (!id) {
     return { success: false, error: "Meal ID is required" };
   }

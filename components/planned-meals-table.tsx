@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { MealCheckbox } from "@/app/plans/[id]/meal-checkbox";
+import { MealCheckbox } from "@/app/(protected)/plans/[id]/meal-checkbox";
 
 interface PlannedMeal {
   id: string;

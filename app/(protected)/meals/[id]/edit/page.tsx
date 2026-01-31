@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getTags } from "@/app/tags/actions";
+import { getTags } from "@/app/(protected)/tags/actions";
 import { getMeal } from "../../actions";
 import { EditMealForm } from "./edit-meal-form";
 import { SetBreadcrumb } from "@/components/set-breadcrumb";

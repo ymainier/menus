@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { tags } from "@/lib/db/schema";
 import { revalidatePath } from "next/cache";
 import { eq, asc } from "drizzle-orm";
+import { requireAuth } from "@/lib/auth-guard";
 
 export type Tag = {
   id: string;
@@ -25,6 +26,7 @@ export async function getTag(id: string): Promise<Tag | null> {
 }
 
 export async function createTag(name: string): Promise<ActionResult<Tag>> {
+  await requireAuth();
   const trimmedName = name?.trim();
   if (!trimmedName) {
     return { success: false, error: "Name is required" };
@@ -50,6 +52,7 @@ export async function updateTag(
   id: string,
   name: string
 ): Promise<ActionResult<Tag>> {
+  await requireAuth();
   const trimmedName = name?.trim();
   if (!trimmedName) {
     return { success: false, error: "Name is required" };
@@ -81,6 +84,7 @@ export async function updateTag(
 }
 
 export async function deleteTag(id: string): Promise<ActionResult> {
+  await requireAuth();
   if (!id) {
     return { success: false, error: "Tag ID is required" };
   }

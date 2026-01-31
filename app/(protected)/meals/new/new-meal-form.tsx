@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { createMeal } from "../actions";
 import { TagCloud } from "../tag-cloud";
 import { CreateTagDialog } from "../create-tag-dialog";
-import type { Tag } from "@/app/tags/actions";
+import type { Tag } from "@/app/(protected)/tags/actions";
 
 interface NewMealFormProps {
   initialTags: Tag[];

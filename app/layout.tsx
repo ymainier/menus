@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
-import { Header } from "@/components/header";
-import { BreadcrumbProvider } from "@/components/breadcrumb-context";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,13 +28,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <BreadcrumbProvider>
-          <Header />
-          <main className="container max-w-2xl mx-auto py-8 px-4">
-            {children}
-          </main>
-          <Toaster />
-        </BreadcrumbProvider>
+        {children}
+        <Toaster />
       </body>
     </html>
   );

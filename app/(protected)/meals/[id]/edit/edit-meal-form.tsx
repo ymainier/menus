@@ -21,7 +21,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { updateMeal, deleteMeal } from "../../actions";
 import type { Meal } from "../../actions";
 import { TagCloud } from "../../tag-cloud";
-import type { Tag } from "@/app/tags/actions";
+import type { Tag } from "@/app/(protected)/tags/actions";
 
 interface EditMealFormProps {
   meal: Meal;

@@ -1,4 +1,4 @@
-import { getTags } from "@/app/tags/actions";
+import { getTags } from "@/app/(protected)/tags/actions";
 import { NewMealForm } from "./new-meal-form";
 import { SetBreadcrumb } from "@/components/set-breadcrumb";
 

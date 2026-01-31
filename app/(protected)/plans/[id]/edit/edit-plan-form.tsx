@@ -36,8 +36,8 @@ import {
   type MealWithTags,
 } from "../../actions";
 import { CreateMealDialog } from "../../create-meal-dialog";
-import type { Meal } from "@/app/meals/actions";
-import type { Tag } from "@/app/tags/actions";
+import type { Meal } from "@/app/(protected)/meals/actions";
+import type { Tag } from "@/app/(protected)/tags/actions";
 
 interface EditPlanFormProps {
   plan: WeekPlanWithMeals;

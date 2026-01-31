@@ -12,10 +12,10 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { TagCloud } from "@/app/meals/tag-cloud";
-import { CreateTagDialog } from "@/app/meals/create-tag-dialog";
-import { createMeal, type Meal } from "@/app/meals/actions";
-import type { Tag } from "@/app/tags/actions";
+import { TagCloud } from "@/app/(protected)/meals/tag-cloud";
+import { CreateTagDialog } from "@/app/(protected)/meals/create-tag-dialog";
+import { createMeal, type Meal } from "@/app/(protected)/meals/actions";
+import type { Tag } from "@/app/(protected)/tags/actions";
 
 interface CreateMealDialogProps {
   tags: Tag[];

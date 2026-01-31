@@ -13,7 +13,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { createTag, type Tag } from "@/app/tags/actions";
+import { createTag, type Tag } from "@/app/(protected)/tags/actions";
 
 interface CreateTagDialogProps {
   onTagCreated: (tag: Tag) => void;

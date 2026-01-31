@@ -8,6 +8,13 @@
       "when": 1769536952760,
       "tag": "0000_lazy_natasha_romanoff",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1769863258732,
+      "tag": "0001_brainy_ben_parker",
+      "breakpoints": true
     }
   ]
 }

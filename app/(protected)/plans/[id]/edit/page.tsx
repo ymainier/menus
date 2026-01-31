@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getWeekPlanWithMeals, getAllMealsWithTags } from "../../actions";
-import { getTags } from "@/app/tags/actions";
+import { getTags } from "@/app/(protected)/tags/actions";
 import { EditPlanForm } from "./edit-plan-form";
 import { SetBreadcrumb } from "@/components/set-breadcrumb";
 
