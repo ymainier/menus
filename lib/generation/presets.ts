@@ -24,15 +24,15 @@ export const presets: MealPlanPreset[] = [
       "Congel Y",
     ],
     randomRules: [
-      { count: 1, requiredTag: "long", excludedTags: ["soup"] },
-      { count: 2, requiredTag: "pasta", excludedTags: ["soup", "long"] },
+      { count: 1, requiredTag: "long", excludedTags: ["soupe"] },
+      { count: 2, requiredTag: "pate", excludedTags: ["soupe", "long"] },
       {
         count: 2,
-        requiredTag: "rice",
-        excludedTags: ["soup", "long", "pasta"],
+        requiredTag: "riz",
+        excludedTags: ["soupe", "long", "pate"],
       },
-      { count: 1, requiredTag: "egg", excludedTags: ["soup", "long"] },
-      { count: 1, requiredTag: "quiche", excludedTags: ["soup", "long"] },
+      { count: 1, requiredTag: "oeuf", excludedTags: ["soupe", "long"] },
+      { count: 1, requiredTag: "quiche", excludedTags: ["soupe", "long"] },
     ],
   },
   {
@@ -42,7 +42,7 @@ export const presets: MealPlanPreset[] = [
     randomRules: [
       { count: 1, requiredTag: "long", excludedTags: [] },
       { count: 2, requiredTag: "pasta", excludedTags: ["long"] },
-      { count: 2, requiredTag: "rice", excludedTags: ["long", "pasta"] },
+      { count: 2, requiredTag: "rice", excludedTags: ["long", "pate"] },
       { count: 1, requiredTag: "egg", excludedTags: ["long"] },
       { count: 1, requiredTag: "quiche", excludedTags: ["long"] },
       { count: 1, requiredTag: "salad", excludedTags: ["long"] },
