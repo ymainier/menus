@@ -9,9 +9,11 @@ import {
   tags,
 } from "@/lib/db/schema";
 import { revalidatePath } from "next/cache";
-import { eq, desc, sql, asc } from "drizzle-orm";
+import { eq, desc, sql, asc, lt, and } from "drizzle-orm";
 import { getCurrentWeekNumber, incrementWeek } from "@/lib/week-utils";
 import { requireAuth } from "@/lib/auth-guard";
+import { presets } from "@/lib/generation/presets";
+import { generateMealPlan } from "@/lib/generation/engine";
 
 export type WeekPlan = {
   id: string;
@@ -463,5 +465,104 @@ export async function updateWeekPlan(
       return { success: false, error: "A plan for this week already exists" };
     }
     return { success: false, error: "Failed to update plan" };
+  }
+}
+
+async function getPreviousWeekDoneMealIds(
+  weekNumber: string,
+): Promise<Set<string>> {
+  // ISO week strings sort lexicographically correctly
+  const [previousPlan] = await db
+    .select({ id: weekPlans.id })
+    .from(weekPlans)
+    .where(lt(weekPlans.weekNumber, weekNumber))
+    .orderBy(desc(weekPlans.weekNumber))
+    .limit(1);
+
+  if (!previousPlan) return new Set();
+
+  const doneMeals = await db
+    .select({ mealId: plannedMeals.mealId })
+    .from(plannedMeals)
+    .where(
+      and(
+        eq(plannedMeals.weekPlanId, previousPlan.id),
+        eq(plannedMeals.done, true),
+      ),
+    );
+
+  return new Set(doneMeals.map((m) => m.mealId));
+}
+
+export type GenerateResult = {
+  id: string;
+  weekNumber: string;
+  warnings: string[];
+};
+
+export async function generateWeekPlan(
+  weekNumber: string,
+  presetKey: string,
+): Promise<ActionResult<GenerateResult>> {
+  await requireAuth();
+
+  const trimmedWeekNumber = weekNumber?.trim();
+  if (!trimmedWeekNumber) {
+    return { success: false, error: "Week number is required" };
+  }
+
+  const weekRegex = /^\d{4}-W(0[1-9]|[1-4]\d|5[0-3])$/;
+  if (!weekRegex.test(trimmedWeekNumber)) {
+    return {
+      success: false,
+      error: "Invalid week format. Use ISO 8601 format (e.g., 2025-W04)",
+    };
+  }
+
+  const preset = presets.find((p) => p.key === presetKey);
+  if (!preset) {
+    return { success: false, error: `Unknown preset: ${presetKey}` };
+  }
+
+  try {
+    const [allMealsWithTags, previousDoneMealIds] = await Promise.all([
+      getAllMealsWithTags(),
+      getPreviousWeekDoneMealIds(trimmedWeekNumber),
+    ]);
+
+    const result = generateMealPlan(preset, allMealsWithTags, previousDoneMealIds);
+
+    // Create the week plan
+    const [plan] = await db
+      .insert(weekPlans)
+      .values({ weekNumber: trimmedWeekNumber })
+      .returning();
+
+    // Insert planned meals
+    if (result.mealIds.length > 0) {
+      await db
+        .insert(plannedMeals)
+        .values(
+          result.mealIds.map((mealId) => ({ weekPlanId: plan.id, mealId })),
+        );
+    }
+
+    revalidatePath("/plans");
+    return {
+      success: true,
+      data: {
+        id: plan.id,
+        weekNumber: plan.weekNumber,
+        warnings: result.warnings.map((w) => w.message),
+      },
+    };
+  } catch (e) {
+    if (e instanceof Error && e.message.includes("unique")) {
+      return {
+        success: false,
+        error: "A plan for this week already exists",
+      };
+    }
+    return { success: false, error: "Failed to generate week plan" };
   }
 }

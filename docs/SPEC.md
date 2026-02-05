@@ -137,39 +137,40 @@ AND done = true
 
 **Fixed meals** (added by name, always included):
 
-- "Delivery"
-- "Soup AC"
-- "Soup Yann"
+- "Soupe pour tous"
+- "Soupe AC"
+- "Soupe Y"
 - "Congel AC"
-- "Congel Yann"
+- "Congel Y"
 
 **Generated meals** (random selection, excludes previous week's done meals):
 
-| Count | Must have tag | Must NOT have tags                |
-| ----- | ------------- | --------------------------------- |
-| 1     | soup          | barbecue                          |
-| 1     | long          | barbecue, soup                    |
-| 2     | pasta         | barbecue, soup, long              |
-| 2     | rice          | barbecue, soup, long, pasta       |
-| 1     | quiche        | barbecue, soup, long, pasta, rice |
+| Count | Must have tag | Must NOT have tags |
+| ----- | ------------- | ------------------ |
+| 1     | long          | soup               |
+| 2     | pasta         | soup, long         |
+| 2     | rice          | soup, long, pasta  |
+| 1     | egg           | soup, long         |
+| 1     | quiche        | soup, long         |
 
 ### Summer Plan (11 meals)
 
 **Fixed meals** (added by name, always included):
 
-- "Delivery"
+- "Barbecue"
 - "Congel AC"
-- "Congel Yann"
+- "Congel Y"
 
 **Generated meals** (random selection, excludes previous week's done meals):
 
-| Count | Must have tag | Must NOT have tags                |
-| ----- | ------------- | --------------------------------- |
-| 1     | barbecue      | soup                              |
-| 1     | long          | soup, barbecue                    |
-| 2     | pasta         | soup, barbecue, long              |
-| 2     | rice          | soup, barbecue, long, pasta       |
-| 1     | salad         | soup, barbecue, long, pasta, rice |
+| Count | Must have tag | Must NOT have tags |
+| ----- | ------------- | ------------------ |
+| 1     | long          | _(none)_           |
+| 2     | pasta         | long               |
+| 2     | rice          | long, pasta        |
+| 1     | egg           | long               |
+| 1     | quiche        | long               |
+| 1     | salad         | long               |
 
 ## Page Specifications
 
